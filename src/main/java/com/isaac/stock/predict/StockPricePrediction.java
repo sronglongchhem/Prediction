@@ -15,7 +15,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.deeplearning4j.parallelism.ParallelWrapper;
+//import org.deeplearning4j.parallelism.ParallelWrapper;
 import org.deeplearning4j.eval.Evaluation;
 
 import java.io.File;
