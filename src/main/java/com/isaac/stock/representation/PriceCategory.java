@@ -5,5 +5,5 @@ package com.isaac.stock.representation;
  * @author ZHANG HAO
  */
 public enum PriceCategory {
-    OPEN, CLOSE, LOW, HIGH, VOLUME, ALL
+    OPEN, CLOSE, LOW, HIGH, VOLUME, ALL,BTC
 }

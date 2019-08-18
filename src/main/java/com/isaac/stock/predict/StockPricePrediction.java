@@ -4,8 +4,10 @@ package com.isaac.stock.predict;
 import com.isaac.stock.model.RecurrentNets;
 import com.isaac.stock.representation.PriceCategory;
 import com.isaac.stock.representation.StockDataSetIterator;
+import com.isaac.stock.utils.EvaluationMatrix;
 import com.isaac.stock.utils.PlotUtil;
 import javafx.util.Pair;
+import org.deeplearning4j.eval.RegressionEvaluation;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -30,14 +32,14 @@ public class StockPricePrediction {
 
     private static final Logger log = LoggerFactory.getLogger(StockPricePrediction.class);
 
-    private static int exampleLength = 22; // time series length, assume 22 working days per month
+    private static int exampleLength = 30; // time series length, assume 22 working days per month
 
     public static void main (String[] args) throws IOException {
         String file = new ClassPathResource("Binance_ETHUSDT_1h.csv").getFile().getAbsolutePath();
         String symbol = "GOOG"; // stock name
         int batchSize = 64; // mini-batch size
         double splitRatio = 0.9; // 90% for training, 10% for testing
-        int epochs = 2; // training epochs
+        int epochs = 25; // training epochs
 
         log.info("Create dataSet iterator...");
         PriceCategory category = PriceCategory.CLOSE; // CLOSE: predict close price
@@ -101,12 +103,26 @@ public class StockPricePrediction {
         log.info("Plot...");
         PlotUtil.plot(predicts, actuals, String.valueOf(category));
 
+//        MultiLayerNetwork
 
         //evaluate the model on the test set
-//        Evaluation eval = new Evaluation(1);
+//        RegressionEvaluation eval =  new RegressionEvaluation(0);
+//        INDArray predict = Nd4j.create(predicts);
+//        INDArray acuatl = Nd4j.create(actuals);
+//        eval.eval(acuatl,predict);
 //        Evaluation eval = net.evaluate(testData);
+//        log.info(eval.stats());
+
+//        double[] actual, pred
+        double mse = EvaluationMatrix.mseCal(actuals,predicts);
+        log.info("mse : " + mse);
+        log.info("rmse : " + EvaluationMatrix.rmseCal(mse) );
+        log.info("mae : " + EvaluationMatrix.maeCal(actuals,predicts));
 
     }
+
+
+
 
     private static void predictPriceMultiple (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, double max, double min) {
         // TODO

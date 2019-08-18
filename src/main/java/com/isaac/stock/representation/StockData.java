@@ -2,6 +2,7 @@ package com.isaac.stock.representation;
 
 /**
  * Created by zhanghao on 26/7/17.
+ * Modifired by Sronglong
  * @author ZHANG HAO
  */
 public class StockData {
@@ -13,10 +14,11 @@ public class StockData {
     private double low; // low price
     private double high; // high price
     private double volume; // volume
+    private double btc; // btc
 
     public StockData () {}
 
-    public StockData (String date, String symbol, double open, double close, double low, double high, double volume) {
+    public StockData (String date, String symbol, double open, double close, double low, double high, double volume,double btc) {
         this.date = date;
         this.symbol = symbol;
         this.open = open;
@@ -24,6 +26,7 @@ public class StockData {
         this.low = low;
         this.high = high;
         this.volume = volume;
+        this.btc = btc;
     }
 
     public String getDate() { return date; }
@@ -46,4 +49,9 @@ public class StockData {
 
     public double getVolume() { return volume; }
     public void setVolume(double volume) { this.volume = volume; }
+
+    public double getBtc(){
+        return  btc;
+    }
+    public void setBtc(double btc){this.volume = volume;}
 }

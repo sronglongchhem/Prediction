@@ -210,7 +210,7 @@ public class StockDataSetIterator implements DataSetIterator {
                        if (nums[i] > maxArray[i]) maxArray[i] = nums[i];
                        if (nums[i] < minArray[i]) minArray[i] = nums[i];
                    }
-                   stockDataList.add(new StockData(arr[0], arr[1], nums[0], nums[1], nums[2], nums[3], nums[4]));
+                   stockDataList.add(new StockData(arr[0], arr[1], nums[0], nums[1], nums[2], nums[3], nums[4],0.0));
                }
 //                if (!arr[1].equals("symbol")) continue;
 

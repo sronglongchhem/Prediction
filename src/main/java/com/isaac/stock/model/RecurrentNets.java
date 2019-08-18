@@ -13,6 +13,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+//import org.deeplearning4j.arbiter.optimize.parameter.continuous.ContinuousParameterSpace
 
 /**
  * Created by zhanghao on 26/7/17.
