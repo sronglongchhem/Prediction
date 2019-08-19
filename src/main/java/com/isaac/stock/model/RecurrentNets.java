@@ -1,17 +1,16 @@
 package com.isaac.stock.model;
 
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.BackpropType;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
-import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.GravesLSTM;
+import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 //import org.deeplearning4j.arbiter.optimize.parameter.continuous.ContinuousParameterSpace
 
@@ -40,7 +39,7 @@ public class RecurrentNets {
                 .weightInit(WeightInit.XAVIER)
                 .updater(Updater.RMSPROP)
                 .regularization(true)
-                .l2(1e-4)
+                .l2(1e-2)
                 .list()
                 .layer(0, new GravesLSTM.Builder()
                         .nIn(nIn)
@@ -77,6 +76,30 @@ public class RecurrentNets {
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
         net.setListeners(new ScoreIterationListener(100));
+        return net;
+    }
+
+
+    //create the neural network
+    public static MultiLayerNetwork getNetModel(int inputNum, int outputNum) {
+        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+//                .trainingWorkspaceMode(WorkspaceMode.ENABLED).inferenceWorkspaceMode(WorkspaceMode.ENABLED)
+                .seed(seed)
+                .optimizationAlgo( OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .weightInit(WeightInit.XAVIER)
+                .updater(new RmsProp.Builder().rmsDecay(0.95).learningRate(1e-2).build())
+                .list()
+                .layer(0,new LSTM.Builder().name("lstm1")
+                        .activation(Activation.TANH).nIn(inputNum).nOut(100).build())
+                .layer(1,new LSTM.Builder().name("lstm2")
+                        .activation(Activation.TANH).nOut(80).build())
+                .layer(2,new RnnOutputLayer.Builder().name("output")
+                        .activation(Activation.SOFTMAX).nOut(outputNum).lossFunction(LossFunctions.LossFunction.MSE)
+                        .build())
+                .build();
+
+        MultiLayerNetwork net = new MultiLayerNetwork(conf);
+        net.init();
         return net;
     }
 }

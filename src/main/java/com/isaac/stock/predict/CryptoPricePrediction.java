@@ -30,14 +30,14 @@ public class CryptoPricePrediction {
 
     private static final Logger log = LoggerFactory.getLogger(CryptoPricePrediction.class);
 
-    private static int exampleLength = 30; // time series length, assume 22 working days per month
+    private static int exampleLength = 22; // time series length, assume 22 working days per month
 
     public static void main (String[] args) throws IOException {
         String file = new ClassPathResource("Binance_ETHUSDT_1h_BTC.csv").getFile().getAbsolutePath();
         String symbol = "GOOG"; // stock name
         int batchSize = 64; // mini-batch size
         double splitRatio = 0.9; // 90% for training, 10% for testing
-        int epochs = 25; // training epochs
+        int epochs = 30; // training epochs
 
         log.info("Create dataSet iterator...");
         PriceCategory category = PriceCategory.CLOSE; // CLOSE: predict close price
@@ -46,8 +46,8 @@ public class CryptoPricePrediction {
         List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
 
         log.info("Build lstm networks...");
-        MultiLayerNetwork net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
-
+//        MultiLayerNetwork net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
+        MultiLayerNetwork net = RecurrentNets.getNetModel(iterator.inputColumns(), iterator.totalOutcomes());
 
         log.info("Training...");
         long timeX = System.currentTimeMillis();
