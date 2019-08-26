@@ -11,6 +11,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <deeplearning4j.version>0.9.1</deeplearning4j.version>
+        <nd4j.version>0.9.1</nd4j.version>
         <slf4j.version>1.7.21</slf4j.version>
         <opencsv.version>3.9</opencsv.version>
         <guava.version>23.0</guava.version>
@@ -27,16 +28,21 @@
             <!--<version>0.9.1</version>-->
         <!--</dependency>-->
 
-
+        <!-- https://mvnrepository.com/artifact/org.deeplearning4j/deeplearning4j-ui -->
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-ui_2.11</artifactId>
+            <version>0.9.1</version>
+        </dependency>
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-api</artifactId>
-            <version>${deeplearning4j.version}</version>
+            <version>${nd4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-native</artifactId>
-            <version>${deeplearning4j.version}</version>
+            <version>${nd4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.deeplearning4j</groupId>
@@ -51,6 +57,11 @@
         <dependency>
             <groupId>org.datavec</groupId>
             <artifactId>datavec-dataframe</artifactId>
+            <version>${deeplearning4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-nlp</artifactId>
             <version>${deeplearning4j.version}</version>
         </dependency>
         <!-- Spark Dependencies -->
@@ -68,7 +79,7 @@
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-parallel-wrapper</artifactId>
-            <version>${dl4j.version}</version>
+            <version>${deeplearning4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>

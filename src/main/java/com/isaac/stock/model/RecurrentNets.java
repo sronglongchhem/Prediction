@@ -10,6 +10,8 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.learning.config.Adam;
+import org.nd4j.linalg.learning.config.IUpdater;
 import org.nd4j.linalg.learning.config.RmsProp;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 //import org.deeplearning4j.arbiter.optimize.parameter.continuous.ContinuousParameterSpace
@@ -20,7 +22,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
  */
 public class RecurrentNets {
 	
-	private static final double learningRate = 0.05;
+	private static final double learningRate = 0.02;
 	private static final int iterations = 1;
 	private static final int seed = 12345;
 
@@ -29,11 +31,15 @@ public class RecurrentNets {
     private static final int denseLayerSize = 32;
     private static final double dropoutRatio = 0.2;
     private static final int truncatedBPTTLength = 22;
+    private static double l2 = 0.0015;
+//    double learningRate = 0.05;
 
     public static MultiLayerNetwork buildLstmNetworks(int nIn, int nOut) {
+//        IUpdater updater = new Adam(learningRate); // new RmsProp(0.1); //
+
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .iterations(iterations)
+//                .iterations(iterations)
                 .learningRate(learningRate)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .weightInit(WeightInit.XAVIER)
@@ -77,6 +83,7 @@ public class RecurrentNets {
         net.init();
         net.setListeners(new ScoreIterationListener(100));
         return net;
+
     }
 
 

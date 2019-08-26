@@ -1,5 +1,7 @@
 package com.isaac.stock.utils;
 
+import org.apache.commons.math3.analysis.function.Atanh;
+
 public class EvaluationMatrix {
     public static double mseCal(double[] actual, double[] predict){
         int n = actual.length;
@@ -29,6 +31,19 @@ public class EvaluationMatrix {
 
         double mae = sum / n;
         return mae;
+
+    }
+
+    public static double deTanh(double data, double sdt, double mean) {
+
+        Atanh atanh = new Atanh();
+//        doubleres = new double[data.length];
+
+//        for (int i=0; i<data.length; i++) {
+//            res[i] = atanh.value( data[i] / 0.5  - 1) / 0.01 * value_deviation + value_mean;
+//        }
+
+        return atanh.value( data / 0.5  - 1) / 0.01 * sdt + mean;
 
     }
 }
