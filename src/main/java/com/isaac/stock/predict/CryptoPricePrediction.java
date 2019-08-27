@@ -121,14 +121,15 @@ public class CryptoPricePrediction {
         double[] actuals = new double[testData.size()];
         for (int i = 0; i < testData.size(); i++) {
             INDArray ma1x = net.rnnTimeStep(testData.get(i).getKey());
-            predicts[i] = EvaluationMatrix.deTanh(net.rnnTimeStep(testData.get(i).getKey()).getDouble(exampleLength - 1),value_deviation,value_mean);
+            predicts[i] = net.rnnTimeStep(testData.get(i).getKey()).getDouble(exampleLength - 1);
+//            predicts[i] = EvaluationMatrix.deTanh(net.rnnTimeStep(testData.get(i).getKey()).getDouble(exampleLength - 1),value_deviation,value_mean);
             actuals[i] = testData.get(i).getValue().getDouble(0);
         }
         log.info("Print out Predictions and Actual Values...");
         log.info("Predict,Actual");
         for (int i = 0; i < predicts.length; i++) log.info(predicts[i] + "," + actuals[i]);
         log.info("Plot...");
-        PlotUtil.plot(predicts, actuals, String.valueOf(category));
+//        PlotUtil.plot(predicts, actuals, String.valueOf(category));
 
 //        MultiLayerNetwork
 

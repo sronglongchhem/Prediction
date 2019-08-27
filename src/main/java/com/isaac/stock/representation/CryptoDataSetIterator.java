@@ -39,7 +39,7 @@ public class CryptoDataSetIterator implements DataSetIterator {
     public double value_deviation;
     public Tanh tanh = new Tanh();
 
-    private final int VECTOR_SIZE = 6; // number of features for a stock data
+    private final int VECTOR_SIZE = 4; // number of features for a stock data
     private int miniBatchSize; // mini-batch size
     private int exampleLength = 22; // default 22, say, 22 working days per month
     private int predictLength = 1; // default 1, say, one day ahead prediction
@@ -109,7 +109,7 @@ public class CryptoDataSetIterator implements DataSetIterator {
                 input.putScalar(new int[] {index, 1, c}, 0.5 * ( tanh.value(0.01 * (curData.getClose() - value_mean) /  value_deviation ) + 1));
                 input.putScalar(new int[] {index, 2, c}, 0.5 * ( tanh.value(0.01 * (curData.getLow() - value_mean) /  value_deviation ) + 1));
                 input.putScalar(new int[] {index, 3, c}, 0.5 * ( tanh.value(0.01 * (curData.getHigh() - value_mean) /  value_deviation ) + 1));
-                input.putScalar(new int[] {index, 4, c}, 0.5 * ( tanh.value(0.01 * (curData.getVolume() - value_mean) /  value_deviation ) + 1));
+              //  input.putScalar(new int[] {index, 4, c}, 0.5 * ( tanh.value(0.01 * (curData.getVolume() - value_mean) /  value_deviation ) + 1));
 //                input.putScalar(new int[] {index, 5, c}, (curData.getBtc() - minArray[5]) / (maxArray[5] - minArray[5]));
                 nextData = train.get(i + 1);
                 if (category.equals(PriceCategory.ALL)) {
@@ -117,7 +117,7 @@ public class CryptoDataSetIterator implements DataSetIterator {
                     label.putScalar(new int[] {index, 1, c}, 0.5 * ( tanh.value(0.01 * (nextData.getClose() - value_mean) /  value_deviation ) + 1));
                     label.putScalar(new int[] {index, 2, c}, 0.5 * ( tanh.value(0.01 * (nextData.getLow() - value_mean) /  value_deviation ) + 1));
                     label.putScalar(new int[] {index, 3, c}, 0.5 * ( tanh.value(0.01 * (nextData.getHigh() - value_mean) /  value_deviation ) + 1));
-                    label.putScalar(new int[] {index, 4, c}, 0.5 * ( tanh.value(0.01 * (nextData.getVolume() - value_mean) /  value_deviation ) + 1));
+                 //   label.putScalar(new int[] {index, 4, c}, 0.5 * ( tanh.value(0.01 * (nextData.getVolume() - value_mean) /  value_deviation ) + 1));
 //                    input.putScalar(new int[] {index, 5, c}, (nextData.getBtc() - minArray[5]) / (maxArray[5] - minArray[5]));
                 } else {
                     label.putScalar(new int[]{index, 0, c}, feedLabel(nextData));
@@ -193,7 +193,7 @@ public class CryptoDataSetIterator implements DataSetIterator {
                 input.putScalar(new int[] {j - i, 1}, 0.5 * ( tanh.value(0.01 * (stock.getClose() - value_mean) /  value_deviation ) + 1 ));
     			input.putScalar(new int[] {j - i, 2}, 0.5 * ( tanh.value(0.01 * (stock.getLow() - value_mean) /  value_deviation ) + 1 ));
     			input.putScalar(new int[] {j - i, 3}, 0.5 * ( tanh.value(0.01 * (stock.getHigh() - value_mean) /  value_deviation ) + 1 ));
-    			input.putScalar(new int[] {j - i, 4}, 0.5 * ( tanh.value(0.01 * (stock.getVolume() - value_mean) /  value_deviation ) + 1 ));
+    		//	input.putScalar(new int[] {j - i, 4}, 0.5 * ( tanh.value(0.01 * (stock.getVolume() - value_mean) /  value_deviation ) + 1 ));
 
     		}
             StockData stock = stockDataList.get(i + exampleLength);
@@ -204,7 +204,7 @@ public class CryptoDataSetIterator implements DataSetIterator {
                 label.putScalar(new int[] {1}, stock.getClose());
                 label.putScalar(new int[] {2}, stock.getLow());
                 label.putScalar(new int[] {3}, stock.getHigh());
-                label.putScalar(new int[] {4}, stock.getVolume());
+              //  label.putScalar(new int[] {4}, stock.getVolume());
 //                label.putScalar(new int[] {5}, stock.getBtc());
             } else {
                 label = Nd4j.create(new int[] {1}, 'f');
@@ -230,7 +230,7 @@ public class CryptoDataSetIterator implements DataSetIterator {
             List<String[]> list = new CSVReader(new FileReader(filename)).readAll(); // load all elements in a list
             for (String[] arr : list) {
                 //skip first header.
-               if (!arr[0].equals("date")){
+               if (!arr[2].equals("open")){
                    double[] nums = new double[VECTOR_SIZE];
 //                   Double.valueOf(arr[i + 2])
                    stockDataList.add(new StockData(arr[0], arr[1],Double.valueOf(arr[2]), Double.valueOf(arr[3]), Double.valueOf(arr[4]), Double.valueOf(arr[5]), 0,0));
@@ -276,7 +276,7 @@ public class CryptoDataSetIterator implements DataSetIterator {
      */
     public void TanHNormalizer(List<StockData> dataset) {
 
-        final int num_el_dataitem = 5; //*2;
+        final int num_el_dataitem = 4; //*2;
         double[] arr = new double[dataset.size()*num_el_dataitem];
 
         // put everything in one array so proper parameters can be calculated for the whole set
@@ -288,7 +288,7 @@ public class CryptoDataSetIterator implements DataSetIterator {
             arr[i + 1] = stock.getLow();
             arr[i + 2] = stock.getHigh();
             arr[i + 3] = stock.getClose();
-            arr[i + 4] = stock.getVolume();
+        //    arr[i + 4] = stock.getVolume();
         }
 
         calculateParameters(arr);
