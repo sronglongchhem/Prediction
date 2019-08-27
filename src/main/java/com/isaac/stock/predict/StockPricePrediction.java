@@ -12,6 +12,7 @@ import javafx.util.Pair;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.eval.RegressionEvaluation;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
@@ -41,12 +42,11 @@ public class StockPricePrediction {
 
     private static int exampleLength = 30; // time series length, assume 22 working days per month
     private static CryptoDataSetIterator iterator;
-
     public static void main (String[] args) throws IOException {
         String file = new ClassPathResource("gemini_BTCUSD_2019_1min-2.csv").getFile().getAbsolutePath();
         String symbol = "GOOG"; // stock name
         int batchSize = 64; // mini-batch size
-        double splitRatio = 0.90; // 90% for training, 10% for testing
+        double splitRatio = 0.9; // 90% for training, 10% for testing
         int epochs = 1; // training epochs
 
         int type = 1;
@@ -61,21 +61,20 @@ public class StockPricePrediction {
         log.info("Build lstm networks...");
         MultiLayerNetwork net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
 
+//        //Initialize the user interface backend
+//        UIServer uiServer = UIServer.getInstance();
+//
+//        //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
+//        StatsStorage statsStorage = new InMemoryStatsStorage();         //Alternative: new FileStatsStorage(File), for saving and loading later
+//
+//        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
+//        uiServer.attach(statsStorage);
+//
+//        //Then add the StatsListener to collect this information from the network, as it trains
+//        net.setListeners(new StatsListener(statsStorage));
+        net.setListeners(new ScoreIterationListener(100));
 
-        //Initialize the user interface backend
-        UIServer uiServer = UIServer.getInstance();
-//        uiServer.
-
-        //Configure where the network information (gradients, activations, score vs. time etc) is to be stored
-        //Then add the StatsListener to collect this information from the network, as it trains
-        StatsStorage statsStorage = new InMemoryStatsStorage();             //Alternative: new FileStatsStorage(File) - see UIStorageExample
-
-        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
-        uiServer.attach(statsStorage);
-
-        int listenerFrequency = 1;
-        net.setListeners(new StatsListener(statsStorage, listenerFrequency));
-
+        log.info("Training...");
         long timeX = System.currentTimeMillis();
         for (int i = 0; i < epochs; i++) {
             long time1 = System.currentTimeMillis();
@@ -116,8 +115,6 @@ public class StockPricePrediction {
 
         log.info("Done...");
     }
-
-
 
     /** Predict one feature of a stock one-day ahead */
     private static void predictPriceOneAhead (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, double max, double min, PriceCategory category) {
@@ -182,8 +179,7 @@ public class StockPricePrediction {
         RegressionEvaluation eval = net.evaluateRegression(iterator);
         System.out.println(eval.stats());
 
-        System.out.println("Printing predicted and actual values...");
-        System.out.println("Predict, Actual");
+
 //        MultiLayerNetwork
 
         //evaluate the model on the test set
