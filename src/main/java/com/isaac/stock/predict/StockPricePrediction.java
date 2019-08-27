@@ -9,8 +9,12 @@ import com.isaac.stock.representation.StockDataSetIterator;
 import com.isaac.stock.utils.EvaluationMatrix;
 import com.isaac.stock.utils.PlotUtil;
 import javafx.util.Pair;
+import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.eval.RegressionEvaluation;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.deeplearning4j.ui.api.UIServer;
+import org.deeplearning4j.ui.stats.StatsListener;
+import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -36,6 +40,7 @@ public class StockPricePrediction {
     private static final Logger log = LoggerFactory.getLogger(StockPricePrediction.class);
 
     private static int exampleLength = 30; // time series length, assume 22 working days per month
+    private static CryptoDataSetIterator iterator;
 
     public static void main (String[] args) throws IOException {
         String file = new ClassPathResource("gemini_BTCUSD_2019_1min-2.csv").getFile().getAbsolutePath();
@@ -48,7 +53,7 @@ public class StockPricePrediction {
 
         log.info("Create dataSet iterator...");
         PriceCategory category = PriceCategory.CLOSE; // CLOSE: predict close price
-        CryptoDataSetIterator iterator = new CryptoDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
+         iterator = new CryptoDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
 //        CryptoBTCDataSetIterator iterator = new CryptoBTCDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
         log.info("Load test dataset...");
         List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
@@ -57,7 +62,20 @@ public class StockPricePrediction {
         MultiLayerNetwork net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
 
 
-        log.info("Training...");
+        //Initialize the user interface backend
+        UIServer uiServer = UIServer.getInstance();
+//        uiServer.
+
+        //Configure where the network information (gradients, activations, score vs. time etc) is to be stored
+        //Then add the StatsListener to collect this information from the network, as it trains
+        StatsStorage statsStorage = new InMemoryStatsStorage();             //Alternative: new FileStatsStorage(File) - see UIStorageExample
+
+        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
+        uiServer.attach(statsStorage);
+
+        int listenerFrequency = 1;
+        net.setListeners(new StatsListener(statsStorage, listenerFrequency));
+
         long timeX = System.currentTimeMillis();
         for (int i = 0; i < epochs; i++) {
             long time1 = System.currentTimeMillis();
@@ -98,6 +116,8 @@ public class StockPricePrediction {
 
         log.info("Done...");
     }
+
+
 
     /** Predict one feature of a stock one-day ahead */
     private static void predictPriceOneAhead (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, double max, double min, PriceCategory category) {
@@ -159,6 +179,11 @@ public class StockPricePrediction {
         log.info("Plot...");
         PlotUtil.plot(predicts, actuals, String.valueOf(category));
 
+        RegressionEvaluation eval = net.evaluateRegression(iterator);
+        System.out.println(eval.stats());
+
+        System.out.println("Printing predicted and actual values...");
+        System.out.println("Predict, Actual");
 //        MultiLayerNetwork
 
         //evaluate the model on the test set

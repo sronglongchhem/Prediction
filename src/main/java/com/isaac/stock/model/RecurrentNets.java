@@ -29,7 +29,7 @@ public class RecurrentNets {
     private static final int lstmLayer1Size = 256;
     private static final int lstmLayer2Size = 256;
     private static final int denseLayerSize = 32;
-    private static final double dropoutRatio = 0.2;
+    private static final double dropoutRatio = 0.5;
     private static final int truncatedBPTTLength = 22;
     private static double l2 = 0.0015;
 //    double learningRate = 0.05;
@@ -38,14 +38,12 @@ public class RecurrentNets {
 //        IUpdater updater = new Adam(learningRate); // new RmsProp(0.1); //
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .seed(seed)
-//                .iterations(iterations)
-                .learningRate(learningRate)
+                .seed(123456)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .updater(new Adam(0.001))
+                .l2(1e-4)
                 .weightInit(WeightInit.XAVIER)
-                .updater(Updater.RMSPROP)
-                .regularization(true)
-                .l2(1e-2)
+                .activation(Activation.RELU)
                 .list()
                 .layer(0, new GravesLSTM.Builder()
                         .nIn(nIn)
@@ -61,12 +59,20 @@ public class RecurrentNets {
                         .gateActivationFunction(Activation.HARDSIGMOID)
                         .dropOut(dropoutRatio)
                         .build())
-                .layer(2, new DenseLayer.Builder()
+                .layer(2, new LSTM.Builder()
+                        .nIn(lstmLayer1Size)
+                        .nOut(lstmLayer2Size)
+                        .activation(Activation.TANH)
+                        .gateActivationFunction(Activation.HARDSIGMOID)
+                        .dropOut(dropoutRatio)
+                        .build())
+
+                .layer(3, new DenseLayer.Builder()
                 		.nIn(lstmLayer2Size)
                 		.nOut(denseLayerSize)
                 		.activation(Activation.RELU)
                 		.build())
-                .layer(3, new RnnOutputLayer.Builder()
+                .layer(4, new RnnOutputLayer.Builder()
                         .nIn(denseLayerSize)
                         .nOut(nOut)
                         .activation(Activation.IDENTITY)
