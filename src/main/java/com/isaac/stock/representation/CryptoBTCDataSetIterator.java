@@ -41,7 +41,7 @@ public class CryptoBTCDataSetIterator implements DataSetIterator {
         featureMapIndex.put(PriceCategory.BTC,5);
     }
 
-    private final int VECTOR_SIZE = 6; // number of features for a stock data
+    private final int VECTOR_SIZE = 4; // number of features for a stock data
     private int miniBatchSize; // mini-batch size
     private int exampleLength = 22; // default 22, say, 22 working days per month
     private int predictLength = 1; // default 1, say, one day ahead prediction
@@ -189,8 +189,8 @@ public class CryptoBTCDataSetIterator implements DataSetIterator {
     			input.putScalar(new int[] {j - i, 1}, (stock.getClose() - minArray[1]) / (maxArray[1] - minArray[1]));
     			input.putScalar(new int[] {j - i, 2}, (stock.getLow() - minArray[2]) / (maxArray[2] - minArray[2]));
     			input.putScalar(new int[] {j - i, 3}, (stock.getHigh() - minArray[3]) / (maxArray[3] - minArray[3]));
-    			input.putScalar(new int[] {j - i, 4}, (stock.getVolume() - minArray[4]) / (maxArray[4] - minArray[4]));
-                input.putScalar(new int[] {j - i, 5}, (stock.getBtc() - minArray[5]) / (maxArray[5] - minArray[5]));
+//    			input.putScalar(new int[] {j - i, 4}, (stock.getVolume() - minArray[4]) / (maxArray[4] - minArray[4]));
+//                input.putScalar(new int[] {j - i, 5}, (stock.getBtc() - minArray[5]) / (maxArray[5] - minArray[5]));
     		}
             StockData stock = stockDataList.get(i + exampleLength);
             INDArray label;
@@ -200,8 +200,8 @@ public class CryptoBTCDataSetIterator implements DataSetIterator {
                 label.putScalar(new int[] {1}, stock.getClose());
                 label.putScalar(new int[] {2}, stock.getLow());
                 label.putScalar(new int[] {3}, stock.getHigh());
-                label.putScalar(new int[] {4}, stock.getVolume());
-                label.putScalar(new int[] {5}, stock.getBtc());
+//                label.putScalar(new int[] {4}, stock.getVolume());
+//                label.putScalar(new int[] {5}, stock.getBtc());
             } else {
                 label = Nd4j.create(new int[] {1}, 'f');
                 switch (category) {
@@ -235,7 +235,7 @@ public class CryptoBTCDataSetIterator implements DataSetIterator {
                        if (nums[i] > maxArray[i]) maxArray[i] = nums[i];
                        if (nums[i] < minArray[i]) minArray[i] = nums[i];
                    }
-                   stockDataList.add(new StockData(arr[0], arr[1], nums[0], nums[1], nums[2], nums[3], nums[4],nums[5]));
+                   stockDataList.add(new StockData(arr[0], arr[1], nums[0], nums[1], nums[2], nums[3], nums[4],0));
                }
 //                if (!arr[1].equals("symbol")) continue;
 

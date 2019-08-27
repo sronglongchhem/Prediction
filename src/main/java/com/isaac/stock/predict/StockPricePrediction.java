@@ -2,6 +2,7 @@ package com.isaac.stock.predict;
 //mvn compile exec:java -Dexec.mainClass="com.isaac.stock.predict.StockPricePrediction"
 //
 import com.isaac.stock.model.RecurrentNets;
+import com.isaac.stock.representation.CryptoBTCDataSetIterator;
 import com.isaac.stock.representation.PriceCategory;
 import com.isaac.stock.representation.StockDataSetIterator;
 import com.isaac.stock.utils.EvaluationMatrix;
@@ -35,15 +36,15 @@ public class StockPricePrediction {
     private static int exampleLength = 30; // time series length, assume 22 working days per month
 
     public static void main (String[] args) throws IOException {
-        String file = new ClassPathResource("Binance_ETHUSDT_1h.csv").getFile().getAbsolutePath();
+        String file = new ClassPathResource("one-month.csv").getFile().getAbsolutePath();
         String symbol = "GOOG"; // stock name
         int batchSize = 64; // mini-batch size
         double splitRatio = 0.9; // 90% for training, 10% for testing
-        int epochs = 50; // training epochs
+        int epochs = 1; // training epochs
 
         log.info("Create dataSet iterator...");
         PriceCategory category = PriceCategory.CLOSE; // CLOSE: predict close price
-        StockDataSetIterator iterator = new StockDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
+        CryptoBTCDataSetIterator iterator = new CryptoBTCDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
         log.info("Load test dataset...");
         List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
 
