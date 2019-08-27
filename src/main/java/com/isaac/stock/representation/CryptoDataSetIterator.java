@@ -1,6 +1,7 @@
 package com.isaac.stock.representation;
 
 import com.google.common.collect.ImmutableMap;
+import com.isaac.stock.utils.EvaluationMatrix;
 import com.opencsv.CSVReader;
 import javafx.util.Pair;
 import org.apache.commons.math.stat.descriptive.moment.Mean;
@@ -186,6 +187,7 @@ public class CryptoDataSetIterator implements DataSetIterator {
     			StockData stock = stockDataList.get(j);
 
              double tanh1 = 0.5 * ( tanh.value(0.01 * (stock.getOpen() - value_mean) /  value_deviation ) + 1 );
+             double ant = EvaluationMatrix.deTanh(tanh1,value_deviation,value_mean);
 
                 input.putScalar(new int[] {j - i, 0}, 0.5 * ( tanh.value(0.01 * (stock.getOpen() - value_mean) /  value_deviation ) + 1 ));
                 input.putScalar(new int[] {j - i, 1}, 0.5 * ( tanh.value(0.01 * (stock.getClose() - value_mean) /  value_deviation ) + 1 ));

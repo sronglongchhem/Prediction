@@ -46,7 +46,7 @@ public class CryptoPricePrediction {
     private static int exampleLength = 20; // time series length, assume 22 working days per month
 
     public static void main (String[] args) throws IOException {
-        String file = new ClassPathResource("gemini_BTCUSD_2019_1min-2.csv").getFile().getAbsolutePath();
+        String file = new ClassPathResource("one-month.csv").getFile().getAbsolutePath();
         String symbol = "GOOG"; // stock name
         int batchSize = 100; // mini-batch size
         double splitRatio = 0.9; // 90% for training, 10% for testing
