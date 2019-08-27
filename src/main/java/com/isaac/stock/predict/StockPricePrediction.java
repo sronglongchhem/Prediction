@@ -41,7 +41,7 @@ public class StockPricePrediction {
         String file = new ClassPathResource("gemini_BTCUSD_2019_1min-2.csv").getFile().getAbsolutePath();
         String symbol = "GOOG"; // stock name
         int batchSize = 64; // mini-batch size
-        double splitRatio = 0.9; // 90% for training, 10% for testing
+        double splitRatio = 0.90; // 90% for training, 10% for testing
         int epochs = 1; // training epochs
 
         int type = 1;
@@ -155,7 +155,7 @@ public class StockPricePrediction {
         }
         log.info("Print out Predictions and Actual Values...");
         log.info("Predict,Actual");
-      //  for (int i = 0; i < predicts.length; i++) log.info(predicts[i] + "," + actuals[i]);
+        for (int i = 0; i < predicts.length; i++) log.info(predicts[i] + "," + actuals[i]);
         log.info("Plot...");
         PlotUtil.plot(predicts, actuals, String.valueOf(category));
 
