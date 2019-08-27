@@ -50,7 +50,7 @@ public class CryptoPricePrediction {
         String symbol = "GOOG"; // stock name
         int batchSize = 100; // mini-batch size
         double splitRatio = 0.9; // 90% for training, 10% for testing
-        int epochs = 12; // training epochs
+        int epochs = 2; // training epochs
 
         log.info("Create dataSet iterator...");
         PriceCategory category = PriceCategory.CLOSE; // CLOSE: predict close price
