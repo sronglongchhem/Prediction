@@ -3,6 +3,7 @@ package com.isaac.stock.predict;
 //
 import com.isaac.stock.model.RecurrentNets;
 import com.isaac.stock.representation.CryptoBTCDataSetIterator;
+import com.isaac.stock.representation.CryptoDataSetIterator;
 import com.isaac.stock.representation.PriceCategory;
 import com.isaac.stock.representation.StockDataSetIterator;
 import com.isaac.stock.utils.EvaluationMatrix;
@@ -40,11 +41,14 @@ public class StockPricePrediction {
         String symbol = "GOOG"; // stock name
         int batchSize = 64; // mini-batch size
         double splitRatio = 0.9; // 90% for training, 10% for testing
-        int epochs = 1; // training epochs
+        int epochs = 4; // training epochs
+
+        int type = 1;
 
         log.info("Create dataSet iterator...");
         PriceCategory category = PriceCategory.CLOSE; // CLOSE: predict close price
-        CryptoBTCDataSetIterator iterator = new CryptoBTCDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
+        CryptoDataSetIterator iterator = new CryptoDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
+//        CryptoBTCDataSetIterator iterator = new CryptoBTCDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
         log.info("Load test dataset...");
         List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
 
@@ -77,15 +81,20 @@ public class StockPricePrediction {
         net = ModelSerializer.restoreMultiLayerNetwork(locationToSave);
 
         log.info("Testing...");
-        if (category.equals(PriceCategory.ALL)) {
-            INDArray max = Nd4j.create(iterator.getMaxArray());
-            INDArray min = Nd4j.create(iterator.getMinArray());
-            predictAllCategories(net, test, max, min);
+        if (type == 1) {
+            //predict with tanh :
+            double mean = iterator.getMinNum(category);
+            double sdv = iterator.getMaxNum(category);
+            predictPriceWithTanh(net,test,mean,sdv,category);
         } else {
             double max = iterator.getMaxNum(category);
             double min = iterator.getMinNum(category);
             predictPriceOneAhead(net, test, max, min, category);
         }
+
+
+
+
         log.info("Done...");
     }
 
@@ -95,6 +104,7 @@ public class StockPricePrediction {
         double[] actuals = new double[testData.size()];
         for (int i = 0; i < testData.size(); i++) {
             INDArray ma1x = net.rnnTimeStep(testData.get(i).getKey());
+//            log.info(ma1x);
             predicts[i] = net.rnnTimeStep(testData.get(i).getKey()).getDouble(exampleLength - 1) * (max - min) + min;
             actuals[i] = testData.get(i).getValue().getDouble(0);
         }
@@ -123,6 +133,39 @@ public class StockPricePrediction {
     }
 
 
+    /** Predict one feature of a stock one-day ahead */
+    private static void predictPriceWithTanh (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, double mean, double sdv, PriceCategory category) {
+        double[] predicts = new double[testData.size()];
+        double[] actuals = new double[testData.size()];
+        for (int i = 0; i < testData.size(); i++) {
+            INDArray ma1x = net.rnnTimeStep(testData.get(i).getKey());
+//            log.info(ma1x);
+            predicts[i] = EvaluationMatrix.deTanh(net.rnnTimeStep(testData.get(i).getKey()).getDouble(exampleLength - 1),sdv,mean );
+            actuals[i] = testData.get(i).getValue().getDouble(0);
+        }
+        log.info("Print out Predictions and Actual Values...");
+        log.info("Predict,Actual");
+        for (int i = 0; i < predicts.length; i++) log.info(predicts[i] + "," + actuals[i]);
+        log.info("Plot...");
+        PlotUtil.plot(predicts, actuals, String.valueOf(category));
+
+//        MultiLayerNetwork
+
+        //evaluate the model on the test set
+//        RegressionEvaluation eval =  new RegressionEvaluation(0);
+//        INDArray predict = Nd4j.create(predicts);
+//        INDArray acuatl = Nd4j.create(actuals);
+//        eval.eval(acuatl,predict);
+//        Evaluation eval = net.evaluate(testData);
+//        log.info(eval.stats());
+
+//        double[] actual, pred
+        double mse = EvaluationMatrix.mseCal(actuals,predicts);
+        log.info("mse : " + mse);
+        log.info("rmse : " + EvaluationMatrix.rmseCal(mse) );
+        log.info("mae : " + EvaluationMatrix.maeCal(actuals,predicts));
+
+    }
 
 
     private static void predictPriceMultiple (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, double max, double min) {

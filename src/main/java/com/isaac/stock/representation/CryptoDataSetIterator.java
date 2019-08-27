@@ -1,6 +1,7 @@
 package com.isaac.stock.representation;
 
 import com.google.common.collect.ImmutableMap;
+import com.isaac.stock.predict.StockPricePrediction;
 import com.isaac.stock.utils.EvaluationMatrix;
 import com.opencsv.CSVReader;
 import javafx.util.Pair;
@@ -13,6 +14,8 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -24,7 +27,7 @@ import java.util.*;
  * @author ZHANG HAO
  */
 public class CryptoDataSetIterator implements DataSetIterator {
-
+    private static final Logger log = LoggerFactory.getLogger(StockPricePrediction.class);
     /** category and its index */
 //    , PriceCategory.CLOSE, 1,
 //    PriceCategory.LOW, 2, PriceCategory.HIGH, 3,PriceCategory.VOLUME,4 ,PriceCategory.BTC,5
@@ -35,8 +38,8 @@ public class CryptoDataSetIterator implements DataSetIterator {
             PriceCategory.HIGH,3,
             PriceCategory.VOLUME,4);
 
-    public double value_mean;
-    public double value_deviation;
+//    public double value_mean;
+//    public double value_deviation;
     public Tanh tanh = new Tanh();
 
     private final int VECTOR_SIZE = 4; // number of features for a stock data
@@ -105,18 +108,18 @@ public class CryptoDataSetIterator implements DataSetIterator {
             StockData nextData;
             for (int i = startIdx; i < endIdx; i++) {
                 int c = i - startIdx;
-                input.putScalar(new int[] {index, 0, c}, 0.5 * ( tanh.value(0.01 * (curData.getOpen() - value_mean) /  value_deviation ) + 1));
-                input.putScalar(new int[] {index, 1, c}, 0.5 * ( tanh.value(0.01 * (curData.getClose() - value_mean) /  value_deviation ) + 1));
-                input.putScalar(new int[] {index, 2, c}, 0.5 * ( tanh.value(0.01 * (curData.getLow() - value_mean) /  value_deviation ) + 1));
-                input.putScalar(new int[] {index, 3, c}, 0.5 * ( tanh.value(0.01 * (curData.getHigh() - value_mean) /  value_deviation ) + 1));
+                input.putScalar(new int[] {index, 0, c}, 0.5 * ( tanh.value(0.01 * (curData.getOpen() - minArray[0]) /  maxArray[0] ) + 1));
+                input.putScalar(new int[] {index, 1, c}, 0.5 * ( tanh.value(0.01 * (curData.getClose() - minArray[1]) /  maxArray[1] ) + 1));
+                input.putScalar(new int[] {index, 2, c}, 0.5 * ( tanh.value(0.01 * (curData.getLow() - minArray[2]) /  maxArray[2] ) + 1));
+                input.putScalar(new int[] {index, 3, c}, 0.5 * ( tanh.value(0.01 * (curData.getHigh() - minArray[3]) /  maxArray[3] ) + 1));
               //  input.putScalar(new int[] {index, 4, c}, 0.5 * ( tanh.value(0.01 * (curData.getVolume() - value_mean) /  value_deviation ) + 1));
 //                input.putScalar(new int[] {index, 5, c}, (curData.getBtc() - minArray[5]) / (maxArray[5] - minArray[5]));
                 nextData = train.get(i + 1);
                 if (category.equals(PriceCategory.ALL)) {
-                    label.putScalar(new int[] {index, 0, c}, 0.5 * ( tanh.value(0.01 * (nextData.getOpen() - value_mean) /  value_deviation ) + 1));
-                    label.putScalar(new int[] {index, 1, c}, 0.5 * ( tanh.value(0.01 * (nextData.getClose() - value_mean) /  value_deviation ) + 1));
-                    label.putScalar(new int[] {index, 2, c}, 0.5 * ( tanh.value(0.01 * (nextData.getLow() - value_mean) /  value_deviation ) + 1));
-                    label.putScalar(new int[] {index, 3, c}, 0.5 * ( tanh.value(0.01 * (nextData.getHigh() - value_mean) /  value_deviation ) + 1));
+                    label.putScalar(new int[] {index, 0, c}, 0.5 * ( tanh.value(0.01 * (nextData.getOpen() - minArray[0]) /  maxArray[0] ) + 1));
+                    label.putScalar(new int[] {index, 1, c}, 0.5 * ( tanh.value(0.01 * (nextData.getClose() - minArray[1]) /  maxArray[1] ) + 1));
+                    label.putScalar(new int[] {index, 2, c}, 0.5 * ( tanh.value(0.01 * (nextData.getLow() - minArray[2]) /  maxArray[2] ) + 1));
+                    label.putScalar(new int[] {index, 3, c}, 0.5 * ( tanh.value(0.01 * (nextData.getHigh() - minArray[3]) /  maxArray[3] ) + 1));
                  //   label.putScalar(new int[] {index, 4, c}, 0.5 * ( tanh.value(0.01 * (nextData.getVolume() - value_mean) /  value_deviation ) + 1));
 //                    input.putScalar(new int[] {index, 5, c}, (nextData.getBtc() - minArray[5]) / (maxArray[5] - minArray[5]));
                 } else {
@@ -133,11 +136,11 @@ public class CryptoDataSetIterator implements DataSetIterator {
         double value;
 
         switch (category) {
-            case OPEN: value = 0.5 * ( tanh.value(0.01 * (data.getOpen() - value_mean) /  value_deviation ) + 1); break;
-            case CLOSE: value = 0.5 * ( tanh.value(0.01 * (data.getClose() - value_mean) /  value_deviation ) + 1); break;
-            case LOW: value = 0.5 * ( tanh.value(0.01 * (data.getLow() - value_mean) /  value_deviation ) + 1); break;
-            case HIGH: value = 0.5 * ( tanh.value(0.01 * (data.getHigh() - value_mean) /  value_deviation ) + 1); break;
-            case VOLUME: value = 0.5 * ( tanh.value(0.01 * (data.getVolume() - value_mean) /  value_deviation ) + 1); break;
+            case OPEN: value = 0.5 * ( tanh.value(0.01 * (data.getOpen() - minArray[0]) /  maxArray[0] ) + 1); break;
+            case CLOSE: value = 0.5 * ( tanh.value(0.01 * (data.getClose() -  minArray[1]) /  maxArray[1] ) + 1); break;
+            case LOW: value = 0.5 * ( tanh.value(0.01 * (data.getLow() -  minArray[2]) /  maxArray[2] ) + 1); break;
+            case HIGH: value = 0.5 * ( tanh.value(0.01 * (data.getHigh() -  minArray[3]) /  maxArray[3] ) + 1); break;
+//            case VOLUME: value = 0.5 * ( tanh.value(0.01 * (data.getVolume() - value_mean) /  maxArray[0] ) + 1); break;
 //            case BTC: value = (data.getBtc() - minArray[5]) / (maxArray[5] - minArray[5]); break;
             default: throw new NoSuchElementException();
         }
@@ -186,13 +189,10 @@ public class CryptoDataSetIterator implements DataSetIterator {
     		for (int j = i; j < i + exampleLength; j++) {
     			StockData stock = stockDataList.get(j);
 
-             double tanh1 = 0.5 * ( tanh.value(0.01 * (stock.getOpen() - value_mean) /  value_deviation ) + 1 );
-             double ant = EvaluationMatrix.deTanh(tanh1,value_deviation,value_mean);
-
-                input.putScalar(new int[] {j - i, 0}, 0.5 * ( tanh.value(0.01 * (stock.getOpen() - value_mean) /  value_deviation ) + 1 ));
-                input.putScalar(new int[] {j - i, 1}, 0.5 * ( tanh.value(0.01 * (stock.getClose() - value_mean) /  value_deviation ) + 1 ));
-    			input.putScalar(new int[] {j - i, 2}, 0.5 * ( tanh.value(0.01 * (stock.getLow() - value_mean) /  value_deviation ) + 1 ));
-    			input.putScalar(new int[] {j - i, 3}, 0.5 * ( tanh.value(0.01 * (stock.getHigh() - value_mean) /  value_deviation ) + 1 ));
+                input.putScalar(new int[] {j - i, 0}, 0.5 * ( tanh.value(0.01 * (stock.getOpen() - minArray[0]) /  maxArray[0] ) + 1 ));
+                input.putScalar(new int[] {j - i, 1}, 0.5 * ( tanh.value(0.01 * (stock.getClose() - minArray[1]) /  maxArray[0] ) + 1 ));
+    			input.putScalar(new int[] {j - i, 2}, 0.5 * ( tanh.value(0.01 * (stock.getLow() - minArray[2]) /  maxArray[0] ) + 1 ));
+    			input.putScalar(new int[] {j - i, 3}, 0.5 * ( tanh.value(0.01 * (stock.getHigh() - minArray[3]) /  maxArray[0] ) + 1 ));
     		//	input.putScalar(new int[] {j - i, 4}, 0.5 * ( tanh.value(0.01 * (stock.getVolume() - value_mean) /  value_deviation ) + 1 ));
 
     		}
@@ -247,22 +247,22 @@ public class CryptoDataSetIterator implements DataSetIterator {
     }
 
 
-    private void calculateParameters(double[] input) {
+    private void calculateParameters(double[] input, int index) {
 
         Mean mean = new Mean();
 
-        value_mean = mean.evaluate(input);
-        value_deviation = new StandardDeviation().evaluate(input);
+        minArray[index] = mean.evaluate(input); // mean
+        maxArray[index] = new StandardDeviation().evaluate(input);
 
     }
 
-    public double[] denormalize(double[] data) {
+    public double[] denormalize(double[] data ) {
 
         Atanh atanh = new Atanh();
         double[] res = new double[data.length];
 
         for (int i=0; i<data.length; i++) {
-            res[i] = atanh.value( data[i] / 0.5  - 1) / 0.01 * value_deviation + value_mean;
+//            res[i] = atanh.value( data[i] / 0.5  - 1) / 0.01 * value_deviation + value_mean;
         }
 
         return res;
@@ -277,21 +277,30 @@ public class CryptoDataSetIterator implements DataSetIterator {
     public void TanHNormalizer(List<StockData> dataset) {
 
         final int num_el_dataitem = 4; //*2;
-        double[] arr = new double[dataset.size()*num_el_dataitem];
+        double[] arrOpen = new double[dataset.size()];
+        double[] arrClose = new double[dataset.size()];
+        double[] arrLow = new double[dataset.size()];
+        double[] arrHigh = new double[dataset.size()];
 
         // put everything in one array so proper parameters can be calculated for the whole set
 //        Iterator<TrainDataItem> it = dataset.iterator();
 
-        for (int i = 0; i < dataset.size(); i+=num_el_dataitem) {
+        for (int i = 0; i < dataset.size(); i++) {
             StockData stock = dataset.get(i);
-            arr[i] = stock.getOpen();
-            arr[i + 1] = stock.getLow();
-            arr[i + 2] = stock.getHigh();
-            arr[i + 3] = stock.getClose();
-        //    arr[i + 4] = stock.getVolume();
+            arrOpen[i] = stock.getOpen();
+            arrClose[i] = stock.getClose();
+            arrLow[i] = stock.getLow();
+            arrHigh[i] = stock.getHigh();
         }
 
-        calculateParameters(arr);
+        calculateParameters(arrOpen,0);
+        calculateParameters(arrClose,1);
+        calculateParameters(arrLow,2);
+        calculateParameters(arrHigh,3);
+        log.info(minArray.toString());
+        log.info(maxArray.toString());
+        Arrays.stream(minArray).forEach(System.out::println);
+        Arrays.stream(maxArray).forEach(System.out::println);
     }
 
 }

@@ -52,6 +52,8 @@ public class CryptoPricePrediction {
         double splitRatio = 0.9; // 90% for training, 10% for testing
         int epochs = 2; // training epochs
 
+        int normalizedTpye = 1; // 1: tanh, 0 : min max
+
         log.info("Create dataSet iterator...");
         PriceCategory category = PriceCategory.CLOSE; // CLOSE: predict close price
         CryptoDataSetIterator iterator = new CryptoDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
@@ -105,15 +107,20 @@ public class CryptoPricePrediction {
 //            INDArray min = Nd4j.create(iterator.getMinArray());
 //            predictAllCategories(net, test, max, min);
         } else {
-            double value_mean = iterator.value_mean;
-            double value_deviation = iterator.value_deviation;
-            predictPriceOneAhead(net, test, value_mean, value_deviation, category);
+//            double value_mean = iterator.value_mean;
+//            double value_deviation = iterator.value_deviation;
+//            predictPriceOneAhead(net, test, value_mean, value_deviation, category);
         }
         log.info("Done...");
 
 
 
     }
+
+
+
+
+
 
     /** Predict one feature of a stock one-day ahead */
     private static void predictPriceOneAhead (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData,double value_mean ,double value_deviation, PriceCategory category) {
@@ -148,6 +155,7 @@ public class CryptoPricePrediction {
         log.info("mae : " + EvaluationMatrix.maeCal(actuals,predicts));
 
     }
+
 
 
 
