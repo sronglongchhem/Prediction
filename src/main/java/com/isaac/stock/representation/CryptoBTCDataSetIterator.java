@@ -111,16 +111,16 @@ public class CryptoBTCDataSetIterator implements DataSetIterator {
                 input.putScalar(new int[] {index, 1, c}, (curData.getClose() - minArray[1]) / (maxArray[1] - minArray[1]));
                 input.putScalar(new int[] {index, 2, c}, (curData.getLow() - minArray[2]) / (maxArray[2] - minArray[2]));
                 input.putScalar(new int[] {index, 3, c}, (curData.getHigh() - minArray[3]) / (maxArray[3] - minArray[3]));
-                input.putScalar(new int[] {index, 4, c}, (curData.getVolume() - minArray[4]) / (maxArray[4] - minArray[4]));
-                input.putScalar(new int[] {index, 5, c}, (curData.getBtc() - minArray[5]) / (maxArray[5] - minArray[5]));
+//                input.putScalar(new int[] {index, 4, c}, (curData.getVolume() - minArray[4]) / (maxArray[4] - minArray[4]));
+//                input.putScalar(new int[] {index, 5, c}, (curData.getBtc() - minArray[5]) / (maxArray[5] - minArray[5]));
                 nextData = train.get(i + 1);
                 if (category.equals(PriceCategory.ALL)) {
                     label.putScalar(new int[] {index, 0, c}, (nextData.getOpen() - minArray[1]) / (maxArray[1] - minArray[1]));
                     label.putScalar(new int[] {index, 1, c}, (nextData.getClose() - minArray[1]) / (maxArray[1] - minArray[1]));
                     label.putScalar(new int[] {index, 2, c}, (nextData.getLow() - minArray[2]) / (maxArray[2] - minArray[2]));
                     label.putScalar(new int[] {index, 3, c}, (nextData.getHigh() - minArray[3]) / (maxArray[3] - minArray[3]));
-                    label.putScalar(new int[] {index, 4, c}, (nextData.getVolume() - minArray[4]) / (maxArray[4] - minArray[4]));
-                    input.putScalar(new int[] {index, 5, c}, (nextData.getBtc() - minArray[5]) / (maxArray[5] - minArray[5]));
+//                    label.putScalar(new int[] {index, 4, c}, (nextData.getVolume() - minArray[4]) / (maxArray[4] - minArray[4]));
+//                    label.putScalar(new int[] {index, 5, c}, (nextData.getBtc() - minArray[5]) / (maxArray[5] - minArray[5]));
                 } else {
                     label.putScalar(new int[]{index, 0, c}, feedLabel(nextData));
                 }
@@ -230,7 +230,7 @@ public class CryptoBTCDataSetIterator implements DataSetIterator {
             for (String[] arr : list) {
                if (!arr[2].equals("open")){
                    double[] nums = new double[VECTOR_SIZE];
-                   for (int i = 0; i < arr.length - 2; i++) {
+                   for (int i = 0; i < arr.length - 3; i++) {
                        nums[i] = Double.valueOf(arr[i + 2]);
                        if (nums[i] > maxArray[i]) maxArray[i] = nums[i];
                        if (nums[i] < minArray[i]) minArray[i] = nums[i];
