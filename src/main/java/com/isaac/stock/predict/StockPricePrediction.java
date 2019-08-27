@@ -22,6 +22,7 @@ import org.deeplearning4j.eval.Evaluation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -37,11 +38,11 @@ public class StockPricePrediction {
     private static int exampleLength = 30; // time series length, assume 22 working days per month
 
     public static void main (String[] args) throws IOException {
-        String file = new ClassPathResource("one-month.csv").getFile().getAbsolutePath();
+        String file = new ClassPathResource("gemini_BTCUSD_2019_1min-2.csv").getFile().getAbsolutePath();
         String symbol = "GOOG"; // stock name
         int batchSize = 64; // mini-batch size
         double splitRatio = 0.9; // 90% for training, 10% for testing
-        int epochs = 4; // training epochs
+        int epochs = 1; // training epochs
 
         int type = 1;
 
@@ -104,7 +105,11 @@ public class StockPricePrediction {
         double[] actuals = new double[testData.size()];
         for (int i = 0; i < testData.size(); i++) {
             INDArray ma1x = net.rnnTimeStep(testData.get(i).getKey());
-//            log.info(ma1x);
+            log.info("in");
+            System.out.println(ma1x);
+            log.info("out");
+            System.out.println(testData.get(i).getKey());
+
             predicts[i] = net.rnnTimeStep(testData.get(i).getKey()).getDouble(exampleLength - 1) * (max - min) + min;
             actuals[i] = testData.get(i).getValue().getDouble(0);
         }
@@ -139,13 +144,18 @@ public class StockPricePrediction {
         double[] actuals = new double[testData.size()];
         for (int i = 0; i < testData.size(); i++) {
             INDArray ma1x = net.rnnTimeStep(testData.get(i).getKey());
-//            log.info(ma1x);
+//            log.info("in");
+//            System.out.println(ma1x);
+//            log.info("out");
+//            System.out.println(testData.get(i).getKey());
+            print(ma1x,"predict");
+            print(testData.get(i).getKey(),"actual");
             predicts[i] = EvaluationMatrix.deTanh(net.rnnTimeStep(testData.get(i).getKey()).getDouble(exampleLength - 1),sdv,mean );
             actuals[i] = testData.get(i).getValue().getDouble(0);
         }
         log.info("Print out Predictions and Actual Values...");
         log.info("Predict,Actual");
-        for (int i = 0; i < predicts.length; i++) log.info(predicts[i] + "," + actuals[i]);
+      //  for (int i = 0; i < predicts.length; i++) log.info(predicts[i] + "," + actuals[i]);
         log.info("Plot...");
         PlotUtil.plot(predicts, actuals, String.valueOf(category));
 
@@ -164,6 +174,22 @@ public class StockPricePrediction {
         log.info("mse : " + mse);
         log.info("rmse : " + EvaluationMatrix.rmseCal(mse) );
         log.info("mae : " + EvaluationMatrix.maeCal(actuals,predicts));
+
+    }
+
+
+    private static void print( INDArray myArray, String type){
+        //Next, print some basic information about the array:
+        System.out.println("Basic INDArray information: " + type);
+//        System.out.println("Num. Rows:          " + myArray.rows());
+//        System.out.println("Num. Columns:       " + myArray.columns());
+//        System.out.println("Num. Dimensions:    " + myArray.rank());                    //2 dimensions -> rank 2
+//        System.out.println("Shape:              " + Arrays.toString(myArray.shape()));  //[3,5] -> 3 rows, 5 columns
+//        System.out.println("Length:             " + myArray.length());                  // 3 rows * 5 columns = 15 total elements
+      for (int i= 0; i<myArray.rows(); i++){
+          System.out.print(myArray.getDouble(i)+" , ");
+      }
+
 
     }
 

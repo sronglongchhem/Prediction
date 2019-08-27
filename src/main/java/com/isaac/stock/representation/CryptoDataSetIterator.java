@@ -129,6 +129,10 @@ public class CryptoDataSetIterator implements DataSetIterator {
             }
             if (exampleStartOffsets.size() == 0) break;
         }
+//        log.info("train batch" );
+     //   log.info(input.toString());
+      //  log.info("label" + label.toString());
+
         return new DataSet(input, label);
     }
 
@@ -228,6 +232,7 @@ public class CryptoDataSetIterator implements DataSetIterator {
         try {
 
             List<String[]> list = new CSVReader(new FileReader(filename)).readAll(); // load all elements in a list
+            int i = 0;
             for (String[] arr : list) {
                 //skip first header.
                if (!arr[2].equals("open")){
@@ -235,6 +240,10 @@ public class CryptoDataSetIterator implements DataSetIterator {
 //                   Double.valueOf(arr[i + 2])
                    stockDataList.add(new StockData(arr[0], arr[1],Double.valueOf(arr[2]), Double.valueOf(arr[3]), Double.valueOf(arr[4]), Double.valueOf(arr[5]), 0,0));
                }
+//               i++;
+//               if (i > 5000){
+//                   break;
+//               }
             }
         } catch (IOException e) {
             e.printStackTrace();
