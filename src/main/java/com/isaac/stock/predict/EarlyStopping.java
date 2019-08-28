@@ -86,7 +86,7 @@ public class EarlyStopping {
         EarlyStoppingTrainer trainer = new EarlyStoppingTrainer(esConf,net,myTrainData);
 
         //Conduct early stopping training:
-        EarlyStoppingResult result = trainer.fit();
+        EarlyStoppingResult<MultiLayerNetwork> result = trainer.fit();
 
         System.out.println("Termination reason: " + result.getTerminationReason());
         System.out.println("Termination details: " + result.getTerminationDetails());
@@ -103,10 +103,11 @@ public class EarlyStopping {
             System.out.println(i + "\t" + scoreVsEpoch.get(i));
         }
 
-        RegressionEvaluation eval = net.evaluateRegression(iterator);
-        System.out.println(eval.stats());
+
         //Get the best model:
-//        MultiLayerNetwork bestModel = result.getBestModel();
+        MultiLayerNetwork bestModel = result.getBestModel();
+        RegressionEvaluation eval = bestModel.evaluateRegression(iterator);
+        System.out.println(eval.stats());
 
         log.info("Done...");
     }

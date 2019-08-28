@@ -52,7 +52,7 @@ public class CryptoPricePrediction {
         int epochs = 100; // training epochs
         PriceCategory category = PriceCategory.CLOSE;
 
-        NormalizeType normalizeType = NormalizeType.DECIMAL_SCALING;
+        NormalizeType normalizeType = NormalizeType.MINMAX;
 
         log.info("Create dataSet iterator...");
         // CLOSE: predict close price
