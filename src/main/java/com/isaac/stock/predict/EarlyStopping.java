@@ -70,7 +70,8 @@ public class EarlyStopping {
         StockDataSetIteratorNew  myTrainData = iterator;
         myTrainData.spliteTrainandValidate(0.8,true);
 
-        StockDataSetIteratorNew  myTestData = iterator;
+        StockDataSetIteratorNew iterator1 = new StockDataSetIteratorNew(fileTrain, batchSize, exampleLength, splitRatio, category,normalizeType);
+        StockDataSetIteratorNew  myTestData = iterator1;
         myTestData.spliteTrainandValidate(0.8,false);
 
 
@@ -115,9 +116,9 @@ public class EarlyStopping {
         }
 
         //Get the best model:
-        MultiLayerNetwork bestModel = result.getBestModel();
-        RegressionEvaluation eval = bestModel.evaluateRegression(myTestData);
-        System.out.println(eval.stats());
+//        MultiLayerNetwork bestModel = result.getBestModel();
+//        RegressionEvaluation eval = bestModel.evaluateRegression(myTestData);
+//        System.out.println(eval.stats());
 
         log.info("Done...");
     }

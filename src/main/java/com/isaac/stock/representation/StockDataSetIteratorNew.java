@@ -78,7 +78,7 @@ public class StockDataSetIteratorNew implements DataSetIterator {
             train = beforeSplit.subList(0,split);
         }else {
             train = train.subList(split,train.size());
-            test = generateTestDataSet(beforeSplit.subList(split, beforeSplit.size()));
+//            test = generateTestDataSet(beforeSplit.subList(split, beforeSplit.size()));
         }
 
         initializeOffsets();
@@ -122,7 +122,10 @@ public class StockDataSetIteratorNew implements DataSetIterator {
                 input.putScalar(new int[] {index, 1, c}, calculateValue(curData.getClose(),1));
                 input.putScalar(new int[] {index, 2, c}, calculateValue(curData.getLow(),2));
                 input.putScalar(new int[] {index, 3, c}, calculateValue(curData.getHigh(),3));
-                input.putScalar(new int[] {index, 4, c}, calculateValue(curData.getVolume(),4));
+                if (VECTOR_SIZE == 5){
+                    input.putScalar(new int[] {index, 4, c}, calculateValue(curData.getVolume(),4));
+                }
+
 
                 nextData = train.get(i + 1);
                 label.putScalar(new int[]{index, 0, c}, feedLabel(nextData));
@@ -191,7 +194,10 @@ public class StockDataSetIteratorNew implements DataSetIterator {
     			input.putScalar(new int[] {j - i, 1}, calculateValue(stock.getClose(),1));
     			input.putScalar(new int[] {j - i, 2}, calculateValue(stock.getLow(),2));
     			input.putScalar(new int[] {j - i, 3}, calculateValue(stock.getHigh(),3));
-    			input.putScalar(new int[] {j - i, 4}, calculateValue(stock.getVolume(),4));
+
+                if (VECTOR_SIZE == 5){
+                    input.putScalar(new int[] {j - i, 4}, calculateValue(stock.getVolume(),4));
+                }
     		}
             StockData stock = stockDataList.get(i + exampleLength);
             INDArray label;
@@ -224,7 +230,7 @@ public class StockDataSetIteratorNew implements DataSetIterator {
             for (String[] arr : list) {
                 if (!arr[2].equals("open")){
                     double[] nums = new double[VECTOR_SIZE];
-                    for (int i = 0; i < arr.length - 3; i++) {
+                    for (int i = 0; i < arr.length -(arr.length - VECTOR_SIZE); i++) {
                         nums[i] = Double.valueOf(arr[i + 2]);
                         if (nums[i] > maxArray[i]) maxArray[i] = nums[i];
                         if (nums[i] < minArray[i]) minArray[i] = nums[i];
@@ -287,6 +293,9 @@ public class StockDataSetIteratorNew implements DataSetIterator {
 
 
     private double calculateValue(double value, int index){
+        if (index == 4){
+            return  0;
+        }
         switch (normalizeType) {
             case MINMAX: return minMaxNormalizer(value,index);
             case DECIMAL_SCALING: return decimalScalingNormalization(value,index);

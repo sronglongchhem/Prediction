@@ -30,7 +30,7 @@ public class RecurrentNets {
     private static final int lstmLayer2Size = 256;
     private static final int denseLayerSize = 32;
     private static final double dropoutRatio = 0.5;
-    private static final int truncatedBPTTLength = 22;
+    private static final int truncatedBPTTLength = 30;
     private static double l2 = 0.0015;
 //    double learningRate = 0.05;
 

@@ -45,7 +45,7 @@ public class CryptoPricePrediction {
 
     private static final Logger log = LoggerFactory.getLogger(CryptoPricePrediction.class);
 
-    private static int exampleLength = 22; // time series length, assume 22 working days per month
+    private static int exampleLength = 30; // time series length, assume 22 working days per month
 
     private static StockDataSetIteratorNew iterator;
 
@@ -55,7 +55,7 @@ public class CryptoPricePrediction {
 
         int batchSize = 64; // mini-batch size
         double splitRatio = 0.8; // 90% for training, 10% for testing
-        int epochs = 100; // training epochs
+        int epochs = 2; // training epochs
         NormalizeType normalizeType = NormalizeType.MINMAX;
         int type = 0;
 
@@ -65,15 +65,15 @@ public class CryptoPricePrediction {
 
          iterator = new StockDataSetIteratorNew(fileTrain, batchSize, exampleLength, splitRatio, category,normalizeType);
 
-         StockDataSetIteratorNew  training = iterator;
-        training.spliteTrainandValidate(0.8,true);
-
-        StockDataSetIteratorNew  validate = iterator;
-        training.spliteTrainandValidate(0.8,false);
+//         StockDataSetIteratorNew  training = iterator;
+//        training.spliteTrainandValidate(0.8,true);
+//
+//        StockDataSetIteratorNew  validate = iterator;
+//        training.spliteTrainandValidate(0.8,false);
 
 
         log.info("Load test dataset...");
-        List<Pair<INDArray, INDArray>> test = validate.getTestDataSet();
+        List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
 
         log.info("Build lstm networks...");
 //        MultiLayerNetwork net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
@@ -99,8 +99,8 @@ public class CryptoPricePrediction {
         for (int i = 0; i < epochs; i++) {
             long time1 = System.currentTimeMillis();
 
-            while (training.hasNext()) net.fit(training.next()); // fit model using mini-batch data
-            training.reset(); // reset iterator
+            while (iterator.hasNext()) net.fit(iterator.next()); // fit model using mini-batch data
+            iterator.reset(); // reset iterator
             net.rnnClearPreviousState(); // clear previous state
             long time2 = System.currentTimeMillis();
             log.info("*** Completed epoch {}, time: {} ***", i, (time2 - time1));
@@ -124,6 +124,8 @@ public class CryptoPricePrediction {
 
         log.info("Done...");
 
+        RegressionEvaluation eval = net.evaluateRegression(iterator);
+        System.out.println(eval.stats());
 
     }
 
@@ -146,19 +148,19 @@ public class CryptoPricePrediction {
         log.info("Plot...");
         PlotUtil.plot(predicts, actuals, String.valueOf(category));
 
-        log.info(writeFile(actuals,predicts,"minax"));
+        log.info(writeFile(actuals,predicts,normalizeType.toString()));
 
 
 
 //        MultiLayerNetwork
 
         //evaluate the model on the test set
-        RegressionEvaluation eval =  new RegressionEvaluation(0);
-        INDArray predict = Nd4j.create(predicts);
-        INDArray acuatl = Nd4j.create(actuals);
-        eval.eval(acuatl,predict);
-//        Evaluation eval = net.evaluate(testData);
-        log.info(eval.stats());
+//        RegressionEvaluation eval =  new RegressionEvaluation(0);
+//        INDArray predict = Nd4j.create(predicts);
+//        INDArray acuatl = Nd4j.create(actuals);
+//        eval.eval(acuatl,predict);
+////        Evaluation eval = net.evaluate(testData);
+//        log.info(eval.stats());
 
 //        double[] actual, pred
         double mse = EvaluationMatrix.mseCal(actuals, predicts);
