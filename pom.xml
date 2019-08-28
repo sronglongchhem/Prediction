@@ -19,6 +19,7 @@
         <dl4j.spark.version>1.0.0-alpha_spark_2</dl4j.spark.version>
         <arbiter.version>1.0.0-alpha</arbiter.version>
         <datavec.version>1.0.0-alpha</datavec.version>
+        <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
         <!--<logback.version>1.2.3</logback.version>-->
     </properties>
 
@@ -33,14 +34,9 @@
 
         <!-- https://mvnrepository.com/artifact/org.deeplearning4j/deeplearning4j-ui -->
         <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>arbiter-ui_2.11</artifactId>
-            <version>${arbiter.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-ui_2.10</artifactId>
-            <version>1.0.0-beta4</version>
+        <groupId>org.deeplearning4j</groupId>
+        <artifactId>arbiter-ui_2.11</artifactId>
+        <version>${arbiter.version}</version>
         </dependency>
         <dependency>
             <groupId>org.nd4j</groupId>
@@ -93,23 +89,33 @@
             <artifactId>httpclient</artifactId>
             <version>4.3.5</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.5.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.5.3</version>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>ch.qos.logback</groupId>-->
             <!--<artifactId>logback-classic</artifactId>-->
             <!--<version>${logback.version}</version>-->
         <!--</dependency>-->
         <!-- Spark Dependencies -->
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_2.10</artifactId>
-            <version>${spark.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.spark</groupId>-->
+            <!--<artifactId>spark-sql_2.10</artifactId>-->
+            <!--<version>${spark.version}</version>-->
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.slf4j</groupId>-->
+                    <!--<artifactId>slf4j-log4j12</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-parallel-wrapper</artifactId>

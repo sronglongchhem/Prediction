@@ -3,7 +3,9 @@ package com.isaac.stock.predict;
 //
 import com.isaac.stock.model.RecurrentNets;
 import com.isaac.stock.representation.*;
+import com.isaac.stock.utils.CsvWriterExamples;
 import com.isaac.stock.utils.EvaluationMatrix;
+import com.isaac.stock.utils.Helpers;
 import com.isaac.stock.utils.PlotUtil;
 import javafx.util.Pair;
 import org.deeplearning4j.api.storage.StatsStorage;
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
@@ -43,22 +46,34 @@ public class CryptoPricePrediction {
     private static final Logger log = LoggerFactory.getLogger(CryptoPricePrediction.class);
 
     private static int exampleLength = 22; // time series length, assume 22 working days per month
+
     private static StockDataSetIteratorNew iterator;
 
     public static void main(String[] args) throws IOException {
-        String file = new ClassPathResource("Binance_BTCUSDT_d.csv").getFile().getAbsolutePath();
-        int batchSize = 64; // mini-batch size
-        double splitRatio = 0.9; // 90% for training, 10% for testing
-        int epochs = 100; // training epochs
-        PriceCategory category = PriceCategory.CLOSE;
+        String fileTrain = new ClassPathResource("BTC_daily__training.csv").getFile().getAbsolutePath();
+//        String fileTest = new ClassPathResource("BTC_daily_testdata.csv").getFile().getAbsolutePath();
 
+        int batchSize = 64; // mini-batch size
+        double splitRatio = 0.8; // 90% for training, 10% for testing
+        int epochs = 100; // training epochs
         NormalizeType normalizeType = NormalizeType.MINMAX;
+        int type = 0;
 
         log.info("Create dataSet iterator...");
-        // CLOSE: predict close price
-         iterator = new StockDataSetIteratorNew(file, batchSize, exampleLength, splitRatio, category,normalizeType);
+        PriceCategory category = PriceCategory.CLOSE; // CLOSE: predict close price
+//         iterator = new CryptoDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
+
+         iterator = new StockDataSetIteratorNew(fileTrain, batchSize, exampleLength, splitRatio, category,normalizeType);
+
+         StockDataSetIteratorNew  training = iterator;
+        training.spliteTrainandValidate(0.8,true);
+
+        StockDataSetIteratorNew  validate = iterator;
+        training.spliteTrainandValidate(0.8,false);
+
+
         log.info("Load test dataset...");
-        List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
+        List<Pair<INDArray, INDArray>> test = validate.getTestDataSet();
 
         log.info("Build lstm networks...");
 //        MultiLayerNetwork net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
@@ -67,12 +82,25 @@ public class CryptoPricePrediction {
         log.info("Training...");
         net.setListeners(new ScoreIterationListener(100));
 
+        //Initialize the user interface backend
+        UIServer uiServer = UIServer.getInstance();
+
+        //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
+        StatsStorage statsStorage = new InMemoryStatsStorage();         //Alternative: new FileStatsStorage(File), for saving and loading later
+
+        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
+        uiServer.attach(statsStorage);
+
+        //Then add the StatsListener to collect this information from the network, as it trains
+        net.setListeners(new StatsListener(statsStorage));
+
+
         long timeX = System.currentTimeMillis();
         for (int i = 0; i < epochs; i++) {
             long time1 = System.currentTimeMillis();
 
-            while (iterator.hasNext()) net.fit(iterator.next()); // fit model using mini-batch data
-            iterator.reset(); // reset iterator
+            while (training.hasNext()) net.fit(training.next()); // fit model using mini-batch data
+            training.reset(); // reset iterator
             net.rnnClearPreviousState(); // clear previous state
             long time2 = System.currentTimeMillis();
             log.info("*** Completed epoch {}, time: {} ***", i, (time2 - time1));
@@ -118,18 +146,19 @@ public class CryptoPricePrediction {
         log.info("Plot...");
         PlotUtil.plot(predicts, actuals, String.valueOf(category));
 
-        RegressionEvaluation eval = net.evaluateRegression(iterator);
-        System.out.println(eval.stats());
+        log.info(writeFile(actuals,predicts,"minax"));
+
+
 
 //        MultiLayerNetwork
 
         //evaluate the model on the test set
-//        RegressionEvaluation eval =  new RegressionEvaluation(0);
-//        INDArray predict = Nd4j.create(predicts);
-//        INDArray acuatl = Nd4j.create(actuals);
-//        eval.eval(acuatl,predict);
+        RegressionEvaluation eval =  new RegressionEvaluation(0);
+        INDArray predict = Nd4j.create(predicts);
+        INDArray acuatl = Nd4j.create(actuals);
+        eval.eval(acuatl,predict);
 //        Evaluation eval = net.evaluate(testData);
-//        log.info(eval.stats());
+        log.info(eval.stats());
 
 //        double[] actual, pred
         double mse = EvaluationMatrix.mseCal(actuals, predicts);
@@ -137,6 +166,17 @@ public class CryptoPricePrediction {
         log.info("rmse : " + EvaluationMatrix.rmseCal(mse));
         log.info("mae : " + EvaluationMatrix.maeCal(actuals, predicts));
 
+    }
+
+    public static String writeFile(double[] predicts, double[] actuals,String name){
+        Path path = null;
+        try {
+            path = Helpers.fileOutOnePath(name);
+        } catch (Exception ex) {
+            Helpers.err(ex);
+        }
+
+        return CsvWriterExamples.csvWriterAll(CsvWriterExamples.toStringList(actuals,predicts,name),path);
     }
 
     public static double denormalize(double value, NormalizeType normalizeType){

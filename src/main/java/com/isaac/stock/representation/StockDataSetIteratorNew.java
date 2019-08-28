@@ -54,6 +54,7 @@ public class StockDataSetIteratorNew implements DataSetIterator {
     /** stock dataset for training */
     private List<StockData> train;
 
+
     /** adjusted stock dataset for testing */
     private List<Pair<INDArray, INDArray>> test;
 
@@ -67,8 +68,23 @@ public class StockDataSetIteratorNew implements DataSetIterator {
         this.normalizeType = normalizeType;
         train = stockDataList.subList(0, split);
         test = generateTestDataSet(stockDataList.subList(split, stockDataList.size()));
-        initializeOffsets();
+//        initializeOffsets();
     }
+
+    public void spliteTrainandValidate(double splitRatio, boolean isFirst){
+        List<StockData> beforeSplit = train;
+        int split = (int) Math.round(this.train.size() * splitRatio);
+        if (isFirst){
+            train = beforeSplit.subList(0,split);
+        }else {
+            train = train.subList(split,train.size());
+            test = generateTestDataSet(beforeSplit.subList(split, beforeSplit.size()));
+        }
+
+        initializeOffsets();
+
+    }
+
 
     /** initialize the mini-batch offsets */
     private void initializeOffsets () {
