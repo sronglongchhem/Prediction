@@ -55,8 +55,8 @@ public class CryptoPricePrediction {
 
         int batchSize = 64; // mini-batch size
         double splitRatio = 0.8; // 90% for training, 10% for testing
-        int epochs = 2; // training epochs
-        NormalizeType normalizeType = NormalizeType.MINMAX;
+        int epochs = 100; // training epochs
+        NormalizeType normalizeType = NormalizeType.DECIMAL_SCALING;
         int type = 0;
 
         log.info("Create dataSet iterator...");
@@ -182,8 +182,14 @@ public class CryptoPricePrediction {
     }
 
     public static double denormalize(double value, NormalizeType normalizeType){
+//        DECIMAL_SCALING,Z_SCORE,MEDIAN_NOR,SIGMOID_NOR, TANH_EST;
         switch (normalizeType){
             case MINMAX: return iterator.denormalMinMAx(value,1);
+            case DECIMAL_SCALING: return iterator.dedecimalScalingNormalization(value,1);
+            case Z_SCORE: return iterator.dezScore(value,1);
+            case MEDIAN_NOR: return iterator.demedianNormalization(value,1);
+//            case SIGMOID_NOR: return iterator.(value,1);
+            case TANH_EST: return iterator.detanhestimators(value,1);
             default: throw new NoSuchElementException();
         }
 
