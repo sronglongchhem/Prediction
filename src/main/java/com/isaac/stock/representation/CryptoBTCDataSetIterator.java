@@ -227,6 +227,7 @@ public class CryptoBTCDataSetIterator implements DataSetIterator {
                 minArray[i] = Double.MAX_VALUE;
             }
             List<String[]> list = new CSVReader(new FileReader(filename)).readAll(); // load all elements in a list
+            int m = 0;
             for (String[] arr : list) {
                if (!arr[2].equals("open")){
                    double[] nums = new double[VECTOR_SIZE];
@@ -237,6 +238,11 @@ public class CryptoBTCDataSetIterator implements DataSetIterator {
                    }
                    stockDataList.add(new StockData(arr[0], arr[1], nums[0], nums[1], nums[2], nums[3], 0,0));
                }
+
+                m++;
+                if (m > 5000){
+                    break;
+                }
 //                if (!arr[1].equals("symbol")) continue;
 
             }

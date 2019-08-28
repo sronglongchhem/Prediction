@@ -240,10 +240,10 @@ public class CryptoDataSetIterator implements DataSetIterator {
 //                   Double.valueOf(arr[i + 2])
                    stockDataList.add(new StockData(arr[0], arr[1],Double.valueOf(arr[2]), Double.valueOf(arr[3]), Double.valueOf(arr[4]), Double.valueOf(arr[5]), 0,0));
                }
-//               i++;
-//               if (i > 5000){
-//                   break;
-//               }
+               i++;
+               if (i > 5000){
+                   break;
+               }
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -43,20 +43,21 @@ public class StockPricePrediction {
     private static int exampleLength = 30; // time series length, assume 22 working days per month
     private static CryptoDataSetIterator iterator;
     public static void main (String[] args) throws IOException {
-        String file = new ClassPathResource("one-month.csv").getFile().getAbsolutePath();
+        String file = new ClassPathResource("Binance_BTCUSDT_d.csv").getFile().getAbsolutePath();
         String symbol = "GOOG"; // stock name
         int batchSize = 64; // mini-batch size
-        double splitRatio = 0.9; // 90% for training, 10% for testing
-        int epochs = 1; // training epochs
+        double splitRatio = 1; // 90% for training, 10% for testing
+        int epochs = 100; // training epochs
 
-        int type = 1;
+        int type = 0;
 
         log.info("Create dataSet iterator...");
         PriceCategory category = PriceCategory.CLOSE; // CLOSE: predict close price
-         iterator = new CryptoDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
-//        CryptoBTCDataSetIterator iterator = new CryptoBTCDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
+//         iterator = new CryptoDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
+        CryptoBTCDataSetIterator iterator = new CryptoBTCDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
+
         log.info("Load test dataset...");
-        List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
+      //  List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
 
         log.info("Build lstm networks...");
         MultiLayerNetwork net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
@@ -86,29 +87,29 @@ public class StockPricePrediction {
             log.info("*** Completed epoch {}, time: {} ***", i, (time2 - time1));
         }
 
-        long timeY = System.currentTimeMillis();
-
-        log.info("*** Training complete, time: {} ***", (timeY - timeX));
-
-        log.info("Saving model...");
-        File locationToSave = new File("src/main/resources/StockPriceLSTM_".concat(String.valueOf(category)).concat(".zip"));
-        // saveUpdater: i.e., the state for Momentum, RMSProp, Adagrad etc. Save this to train your network more in the future
-        ModelSerializer.writeModel(net, locationToSave, true);
-
-        log.info("Load model...");
-        net = ModelSerializer.restoreMultiLayerNetwork(locationToSave);
-
-        log.info("Testing...");
-        if (type == 1) {
-            //predict with tanh :
-            double mean = iterator.getMinNum(category);
-            double sdv = iterator.getMaxNum(category);
-            predictPriceWithTanh(net,test,mean,sdv,category);
-        } else {
-            double max = iterator.getMaxNum(category);
-            double min = iterator.getMinNum(category);
-            predictPriceOneAhead(net, test, max, min, category);
-        }
+//        long timeY = System.currentTimeMillis();
+//
+//        log.info("*** Training complete, time: {} ***", (timeY - timeX));
+//
+//        log.info("Saving model...");
+//        File locationToSave = new File("src/main/resources/StockPriceLSTM_".concat(String.valueOf(category)).concat(".zip"));
+//        // saveUpdater: i.e., the state for Momentum, RMSProp, Adagrad etc. Save this to train your network more in the future
+//        ModelSerializer.writeModel(net, locationToSave, true);
+//
+//        log.info("Load model...");
+//        net = ModelSerializer.restoreMultiLayerNetwork(locationToSave);
+//
+//        log.info("Testing...");
+//        if (type == 1) {
+//            //predict with tanh :
+//            double mean = iterator.getMinNum(category);
+//            double sdv = iterator.getMaxNum(category);
+//            predictPriceWithTanh(net,test,mean,sdv,category);
+//        } else {
+//            double max = iterator.getMaxNum(category);
+//            double min = iterator.getMinNum(category);
+//            predictPriceOneAhead(net, test, max, min, category);
+//        }
 
 
 
