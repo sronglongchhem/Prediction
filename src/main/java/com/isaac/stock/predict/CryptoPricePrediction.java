@@ -45,7 +45,7 @@ public class CryptoPricePrediction {
 
     private static final Logger log = LoggerFactory.getLogger(CryptoPricePrediction.class);
 
-    private static int exampleLength = 30; // time series length, assume 22 working days per month
+    private static int exampleLength = 1; // time series length, assume 22 working days per month
 
     private static StockDataSetIteratorNew iterator;
 
@@ -170,7 +170,7 @@ public class CryptoPricePrediction {
 //        log.info(eval.stats());
 
 //        double[] actual, pred
-        double mse = EvaluationMatrix.mseCal(actualsnormalizerd, predictsnormalized);
+        double mse = EvaluationMatrix.mseCal(actuals, predicts);
         log.info("mse : " + mse);
         log.info("rmse : " + EvaluationMatrix.rmseCal(mse));
         log.info("mae : " + EvaluationMatrix.maeCal(actualsnormalizerd, predictsnormalized));
