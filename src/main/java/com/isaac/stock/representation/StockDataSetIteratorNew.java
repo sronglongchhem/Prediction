@@ -190,6 +190,7 @@ public class StockDataSetIteratorNew implements DataSetIterator {
     		INDArray input = Nd4j.create(new int[] {exampleLength, VECTOR_SIZE}, 'f');
     		for (int j = i; j < i + exampleLength; j++) {
     			StockData stock = stockDataList.get(j);
+    			int index = j - i;
     			input.putScalar(new int[] {j - i, 0}, calculateValue(stock.getOpen(),0));
     			input.putScalar(new int[] {j - i, 1}, calculateValue(stock.getClose(),1));
     			input.putScalar(new int[] {j - i, 2}, calculateValue(stock.getLow(),2));
@@ -202,10 +203,13 @@ public class StockDataSetIteratorNew implements DataSetIterator {
             StockData stock = stockDataList.get(i + exampleLength);
             INDArray label;
 
-            label = Nd4j.create(new int[] {1}, 'f');
+            label = Nd4j.create(new int[] {2}, 'f');
             switch (category) {
                     case OPEN: label.putScalar(new int[] {0}, stock.getOpen()); break;
-                    case CLOSE: label.putScalar(new int[] {0}, stock.getClose()); break;
+                    case CLOSE:
+                        label.putScalar(new int[] {0, 0}, stock.getClose());
+                        label.putScalar(new int[] {0, 1}, calculateValue(stock.getClose(),1));
+                        break;
                     case LOW: label.putScalar(new int[] {0}, stock.getLow()); break;
                     case HIGH: label.putScalar(new int[] {0}, stock.getHigh()); break;
                     case VOLUME: label.putScalar(new int[] {0}, stock.getVolume()); break;
@@ -371,6 +375,10 @@ public class StockDataSetIteratorNew implements DataSetIterator {
         System.out.println("medianNormalization value of "+value+"="+V1);
         System.out.println("denorm "+V1+"= "+(V1 * median[index] ));
        return V1;
+    }
+
+    public double desigmoidNormalization(double value, int index){
+        return value; // cannot reverse
     }
 
     private double tanhestimators(double value, int index){

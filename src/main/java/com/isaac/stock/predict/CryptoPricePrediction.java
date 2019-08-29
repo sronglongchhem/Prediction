@@ -55,8 +55,8 @@ public class CryptoPricePrediction {
 
         int batchSize = 64; // mini-batch size
         double splitRatio = 0.8; // 90% for training, 10% for testing
-        int epochs = 100; // training epochs
-        NormalizeType normalizeType = NormalizeType.DECIMAL_SCALING;
+        int epochs = 3; // training epochs
+        NormalizeType normalizeType = NormalizeType.MINMAX;
         int type = 0;
 
         log.info("Create dataSet iterator...");
@@ -136,19 +136,26 @@ public class CryptoPricePrediction {
     private static void predictPriceOneAhead(MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, PriceCategory category, NormalizeType normalizeType) {
         double[] predicts = new double[testData.size()];
         double[] actuals = new double[testData.size()];
+        double[] predictsnormalized = new double[testData.size()];
+        double[] actualsnormalizerd = new double[testData.size()];
         for (int i = 0; i < testData.size(); i++) {
             INDArray ma1x = net.rnnTimeStep(testData.get(i).getKey());
+
             predicts[i] = denormalize(net.rnnTimeStep(testData.get(i).getKey()).getDouble(exampleLength - 1),normalizeType);
 //            predicts[i] = EvaluationMatrix.deTanh(net.rnnTimeStep(testData.get(i).getKey()).getDouble(exampleLength - 1),value_deviation,value_mean);
             actuals[i] = testData.get(i).getValue().getDouble(0);
+
+            predictsnormalized[i] = net.rnnTimeStep(testData.get(i).getKey()).getDouble(exampleLength - 1);
+            actualsnormalizerd[i] = testData.get(i).getValue().getDouble(1);
+
         }
         log.info("Print out Predictions and Actual Values...");
         log.info("Predict,Actual");
-        for (int i = 0; i < predicts.length; i++) log.info(predicts[i] + "," + actuals[i]);
+        for (int i = 0; i < predicts.length; i++) log.info(predictsnormalized[i] + "," + actualsnormalizerd[i]);
         log.info("Plot...");
         PlotUtil.plot(predicts, actuals, String.valueOf(category));
 
-        log.info(writeFile(actuals,predicts,normalizeType.toString()));
+        log.info(writeFile(actuals,predicts,predictsnormalized,actualsnormalizerd,normalizeType.toString()));
 
 
 
@@ -163,14 +170,14 @@ public class CryptoPricePrediction {
 //        log.info(eval.stats());
 
 //        double[] actual, pred
-        double mse = EvaluationMatrix.mseCal(actuals, predicts);
+        double mse = EvaluationMatrix.mseCal(actualsnormalizerd, predictsnormalized);
         log.info("mse : " + mse);
         log.info("rmse : " + EvaluationMatrix.rmseCal(mse));
-        log.info("mae : " + EvaluationMatrix.maeCal(actuals, predicts));
+        log.info("mae : " + EvaluationMatrix.maeCal(actualsnormalizerd, predictsnormalized));
 
     }
 
-    public static String writeFile(double[] predicts, double[] actuals,String name){
+    public static String writeFile(double[] predicts, double[] actuals,double[] predictsnor, double[] actualsnor,String name){
         Path path = null;
         try {
             path = Helpers.fileOutOnePath(name);
@@ -178,7 +185,7 @@ public class CryptoPricePrediction {
             Helpers.err(ex);
         }
 
-        return CsvWriterExamples.csvWriterAll(CsvWriterExamples.toStringList(actuals,predicts,name),path);
+        return CsvWriterExamples.csvWriterAll(CsvWriterExamples.toStringList(actuals,predicts,actualsnor, predictsnor,name),path);
     }
 
     public static double denormalize(double value, NormalizeType normalizeType){
@@ -188,7 +195,7 @@ public class CryptoPricePrediction {
             case DECIMAL_SCALING: return iterator.dedecimalScalingNormalization(value,1);
             case Z_SCORE: return iterator.dezScore(value,1);
             case MEDIAN_NOR: return iterator.demedianNormalization(value,1);
-//            case SIGMOID_NOR: return iterator.(value,1);
+            case SIGMOID_NOR: return iterator.desigmoidNormalization(value,1);
             case TANH_EST: return iterator.detanhestimators(value,1);
             default: throw new NoSuchElementException();
         }

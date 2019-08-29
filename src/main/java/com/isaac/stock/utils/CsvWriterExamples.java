@@ -34,12 +34,12 @@ public class CsvWriterExamples {
         return path.toAbsolutePath().toString();
     }
 
-    public static List<String[]> toStringList(double[] actual, double[] predict, String name) {
+    public static List<String[]> toStringList(double[] actual, double[] predict,double[] predictsnor, double[] actualsnor, String name) {
         List<String[]> list = new ArrayList<>();
         list.add(new String[]{name, ""});
-        list.add(new String[]{"actual", "predict"});
+        list.add(new String[]{"actual", "predict","actualNor","predictNor"});
         for (int i = 0; i< actual.length ; i++){
-            list.add(new String[]{String.valueOf(actual[i]),String.valueOf(predict[i]) });
+            list.add(new String[]{String.valueOf(actual[i]),String.valueOf(predict[i]),String.valueOf(actualsnor[i]),String.valueOf(predictsnor[i]) });
         }
         return list;
     }
