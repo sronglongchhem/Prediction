@@ -50,7 +50,7 @@ public class CryptoPricePrediction {
     private static StockDataSetIteratorNew iterator;
 
     public static void main(String[] args) throws IOException {
-        String fileTrain = new ClassPathResource("BTC_daily__training.csv").getFile().getAbsolutePath();
+        String fileTrain = new ClassPathResource("BTC_minute.csv").getFile().getAbsolutePath();
 //        String fileTest = new ClassPathResource("BTC_daily_testdata.csv").getFile().getAbsolutePath();
 
         int batchSize = 64; // mini-batch size
@@ -155,7 +155,7 @@ public class CryptoPricePrediction {
         log.info("Plot...");
         PlotUtil.plot(predicts, actuals, String.valueOf(category));
 
-        log.info(writeFile(actuals,predicts,predictsnormalized,actualsnormalizerd,normalizeType.toString()));
+        log.info(writeFile(actuals,predicts,predictsnormalized,actualsnormalizerd,"minute" + normalizeType.toString()));
 
 
 
