@@ -1,0 +1,15 @@
+minx math
+
+Column    MSE            MAE            RMSE           RSE            PC             R^2
+col_0     4.91346e-03    3.37298e-02    7.00960e-02    1.04962e-01    9.46661e-01    8.95036e-01
+
+decimal scalling
+Column    MSE            MAE            RMSE           RSE            PC             R^2
+col_0     1.77748e-04    6.69315e-03    1.33322e-02    1.02389e-01    9.49355e-01    8.97609e-01
+
+Column    MSE            MAE            RMSE           RSE            PC             R^2
+col_0     9.37311e-02    1.63498e-01    3.06155e-01    8.27775e-02    9.58446e-01    9.17224e-01
+
+Column    MSE            MAE            RMSE           RSE            PC             R^2
+col_0     1.74970e-01    1.79368e-01    4.18294e-01    1.28250e-01    9.40145e-01    8.71751e-01
+
