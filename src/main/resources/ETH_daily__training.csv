@@ -1,4 +1,4 @@
-Date,Symbol,Open,High,Low,Close,Volume USD
+date,symbol,open,close,low,high,volume
 09/05/2016,ETHUSD,12,12,9.36,9.98,12885.06
 10/05/2016,ETHUSD,9.98,9.98,9.36,9.68,6578.2
 11/05/2016,ETHUSD,9.68,10.47,9.68,10.43,30978.11
