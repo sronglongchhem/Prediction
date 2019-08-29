@@ -1,0 +1,46 @@
+min man
+
+06:01:44.779 [main] INFO  c.i.s.predict.CryptoPricePrediction - mse : 2.1599819247711672E-4
+06:01:44.779 [main] INFO  c.i.s.predict.CryptoPricePrediction - rmse : 0.014696876963393167
+06:01:44.779 [main] INFO  c.i.s.predict.CryptoPricePrediction - mae : 0.012254890999155181
+06:01:44.779 [main] INFO  c.i.s.predict.CryptoPricePrediction - Done...
+Column    MSE            MAE            RMSE           RSE            PC             R^2
+col_0     6.62362e-03    4.19290e-02    8.13856e-02    1.39909e-01    9.27815e-01    8.60091e-01
+
+scallling
+
+06:25:31.738 [main] INFO  c.i.s.predict.CryptoPricePrediction - mse : 3.966474684825314E-6
+06:25:31.739 [main] INFO  c.i.s.predict.CryptoPricePrediction - rmse : 0.0019916010355553932
+06:25:31.739 [main] INFO  c.i.s.predict.CryptoPricePrediction - mae : 0.0015075256664787184
+06:25:31.739 [main] INFO  c.i.s.predict.CryptoPricePrediction - Done...
+Column    MSE            MAE            RMSE           RSE            PC             R^2
+col_0     1.13603e-04    5.87853e-03    1.06585e-02    1.26909e-01    9.35962e-01    8.73093e-01
+
+zscore
+
+08:07:57.558 [main] INFO  c.i.s.predict.CryptoPricePrediction - /home/a100456065/Documents/Predictionfin/src/main/resources/predict_result_ETH_Z_SCORE.csv
+08:07:57.559 [main] INFO  c.i.s.predict.CryptoPricePrediction - mse : 0.013024455663505992
+08:07:57.559 [main] INFO  c.i.s.predict.CryptoPricePrediction - rmse : 0.11412473729873814
+08:07:57.559 [main] INFO  c.i.s.predict.CryptoPricePrediction - mae : 0.09888368913832535
+08:07:57.559 [main] INFO  c.i.s.predict.CryptoPricePrediction - Done...
+Column    MSE            MAE            RMSE           RSE            PC             R^2
+col_0     1.44033e-01    2.06218e-01    3.79516e-01    1.06971e-01    9.45059e-01    8.93030e-01
+
+
+
+MEDIAN_NOR
+08:26:50.490 [main] INFO  c.i.s.predict.CryptoPricePrediction - mse : 0.0089525660856097
+08:26:50.490 [main] INFO  c.i.s.predict.CryptoPricePrediction - rmse : 0.0946180008540114
+08:26:50.490 [main] INFO  c.i.s.predict.CryptoPricePrediction - mae : 0.08119784602137844
+08:26:50.490 [main] INFO  c.i.s.predict.CryptoPricePrediction - Done...
+Column    MSE            MAE            RMSE           RSE            PC             R^2
+col_0     3.88071e-01    2.98559e-01    6.22954e-01    1.72803e-01    9.19454e-01    8.27199e-01
+
+
+Tanh
+08:43:42.973 [main] INFO  c.i.s.predict.CryptoPricePrediction - mse : 5.925125264780187E-5
+08:43:42.973 [main] INFO  c.i.s.predict.CryptoPricePrediction - rmse : 0.007697483526958785
+08:43:42.974 [main] INFO  c.i.s.predict.CryptoPricePrediction - mae : 0.007480194694117496
+08:43:42.974 [main] INFO  c.i.s.predict.CryptoPricePrediction - Done...
+Column    MSE            MAE            RMSE           RSE            PC             R^2
+col_0     4.69524e-03    2.37737e-02    6.85218e-02    1.46947e+03    8.17779e-05    -1.41364e+03

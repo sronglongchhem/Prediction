@@ -372,8 +372,8 @@ public class StockDataSetIteratorNew implements DataSetIterator {
 
     private double sigmoidNormalization(double value, int index){
        double V1 = 1/(1+Math.exp(-value));
-        System.out.println("medianNormalization value of "+value+"="+V1);
-        System.out.println("denorm "+V1+"= "+(V1 * median[index] ));
+     //   System.out.println("medianNormalization value of "+value+"="+V1);
+    //    System.out.println("denorm "+V1+"= "+(V1 * median[index] ));
        return V1;
     }
 
