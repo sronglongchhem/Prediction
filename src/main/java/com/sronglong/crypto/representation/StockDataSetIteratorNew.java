@@ -1,13 +1,10 @@
-package com.isaac.stock.representation;
+package com.sronglong.crypto.representation;
 
-import breeze.linalg.max;
 import com.google.common.collect.ImmutableMap;
-import com.isaac.stock.utils.EvaluationMatrix;
+import com.sronglong.crypto.utils.EvaluationMatrix;
 import com.opencsv.CSVReader;
 import javafx.util.Pair;
 import org.apache.commons.math.stat.descriptive.moment.Mean;
-import org.apache.commons.math3.analysis.function.Atanh;
-import org.apache.commons.math3.analysis.function.Tanh;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.nd4j.linalg.api.ndarray.INDArray;

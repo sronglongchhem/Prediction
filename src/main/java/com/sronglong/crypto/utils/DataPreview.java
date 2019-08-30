@@ -1,4 +1,4 @@
-package com.isaac.stock.utils;
+package com.sronglong.crypto.utils;
 
 import org.apache.spark.ml.feature.MinMaxScaler;
 import org.apache.spark.ml.feature.VectorAssembler;

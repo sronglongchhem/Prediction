@@ -1,14 +1,14 @@
-package com.isaac.stock.predict;
+package com.sronglong.crypto.predict;
 //mvn compile exec:java -Dexec.mainClass="com.isaac.stock.predict.StockPricePrediction"
 //
 
-import com.isaac.stock.model.RecurrentNets;
-import com.isaac.stock.representation.*;
-import com.isaac.stock.utils.EvaluationMatrix;
-import com.isaac.stock.utils.PlotUtil;
-import javafx.util.Pair;
+import com.sronglong.crypto.model.RecurrentNets;
+//import com.isaac.stock.representation.*;
+import com.sronglong.crypto.representation.CryptoDataSetIterator;
+import com.sronglong.crypto.representation.NormalizeType;
+import com.sronglong.crypto.representation.PriceCategory;
+import com.sronglong.crypto.representation.StockDataSetIteratorNew;
 import org.apache.commons.io.FilenameUtils;
-import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.earlystopping.EarlyStoppingConfiguration;
 import org.deeplearning4j.earlystopping.EarlyStoppingModelSaver;
 import org.deeplearning4j.earlystopping.EarlyStoppingResult;
@@ -18,14 +18,7 @@ import org.deeplearning4j.earlystopping.termination.MaxEpochsTerminationConditio
 import org.deeplearning4j.earlystopping.termination.MaxTimeIterationTerminationCondition;
 import org.deeplearning4j.earlystopping.termination.ScoreImprovementEpochTerminationCondition;
 import org.deeplearning4j.earlystopping.trainer.EarlyStoppingTrainer;
-import org.deeplearning4j.eval.RegressionEvaluation;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.deeplearning4j.ui.api.UIServer;
-import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
-import org.deeplearning4j.util.ModelSerializer;
-import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,21 +1,17 @@
-package com.isaac.stock.predict;
+package com.sronglong.crypto.predict;
 //mvn compile exec:java -Dexec.mainClass="com.isaac.stock.predict.StockPricePrediction"
 //
-import com.isaac.stock.model.RecurrentNets;
-import com.isaac.stock.representation.*;
-import com.isaac.stock.utils.CsvWriterExamples;
-import com.isaac.stock.utils.EvaluationMatrix;
-import com.isaac.stock.utils.Helpers;
-import com.isaac.stock.utils.PlotUtil;
+import com.sronglong.crypto.model.RecurrentNets;
+//import com.isaac.stock.representation.*;
+import com.sronglong.crypto.utils.CsvWriterExamples;
+import com.sronglong.crypto.utils.EvaluationMatrix;
+import com.sronglong.crypto.utils.Helpers;
+import com.sronglong.crypto.utils.PlotUtil;
+import com.sronglong.crypto.representation.NormalizeType;
+import com.sronglong.crypto.representation.PriceCategory;
+import com.sronglong.crypto.representation.StockDataSetIteratorNew;
 import javafx.util.Pair;
 import org.deeplearning4j.api.storage.StatsStorage;
-import org.deeplearning4j.earlystopping.EarlyStoppingConfiguration;
-import org.deeplearning4j.earlystopping.EarlyStoppingResult;
-import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver;
-import org.deeplearning4j.earlystopping.scorecalc.DataSetLossCalculator;
-import org.deeplearning4j.earlystopping.termination.MaxEpochsTerminationCondition;
-import org.deeplearning4j.earlystopping.termination.MaxTimeIterationTerminationCondition;
-import org.deeplearning4j.earlystopping.trainer.EarlyStoppingTrainer;
 import org.deeplearning4j.eval.RegressionEvaluation;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
@@ -24,7 +20,6 @@ import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +29,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by zhanghao on 26/7/17.
@@ -45,18 +39,19 @@ public class CryptoPricePrediction {
 
     private static final Logger log = LoggerFactory.getLogger(CryptoPricePrediction.class);
 
-    private static int exampleLength = 1; // time series length, assume 22 working days per month
+    private static int exampleLength = 30; // time series length, assume 22 working days per month
 
     private static StockDataSetIteratorNew iterator;
+    private static String CSV_NAME = "";
 
     public static void main(String[] args) throws IOException {
-        String fileTrain = new ClassPathResource("BTC_minute.csv").getFile().getAbsolutePath();
+        String fileTrain = new ClassPathResource("BTC_daily__training.csv").getFile().getAbsolutePath();
 //        String fileTest = new ClassPathResource("BTC_daily_testdata.csv").getFile().getAbsolutePath();
 
         int batchSize = 64; // mini-batch size
         double splitRatio = 0.8; // 90% for training, 10% for testing
-        int epochs = 3; // training epochs
-        NormalizeType normalizeType = NormalizeType.MINMAX;
+        int epochs = 100; // training epochs
+        NormalizeType normalizeType = NormalizeType.TANH_EST;
         int type = 0;
 
         log.info("Create dataSet iterator...");
@@ -155,7 +150,7 @@ public class CryptoPricePrediction {
         log.info("Plot...");
         PlotUtil.plot(predicts, actuals, String.valueOf(category));
 
-        log.info(writeFile(actuals,predicts,predictsnormalized,actualsnormalizerd,"minute" + normalizeType.toString()));
+        log.info(writeFile(actuals,predicts,predictsnormalized,actualsnormalizerd,CSV_NAME + normalizeType.toString()));
 
 
 

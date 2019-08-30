@@ -1,33 +1,23 @@
-package com.isaac.stock.predict;
+package com.sronglong.crypto.predict;
 //mvn compile exec:java -Dexec.mainClass="com.isaac.stock.predict.StockPricePrediction"
 //
-import com.isaac.stock.model.RecurrentNets;
-import com.isaac.stock.representation.CryptoBTCDataSetIterator;
-import com.isaac.stock.representation.CryptoDataSetIterator;
-import com.isaac.stock.representation.PriceCategory;
-import com.isaac.stock.representation.StockDataSetIterator;
-import com.isaac.stock.utils.EvaluationMatrix;
-import com.isaac.stock.utils.PlotUtil;
+import com.sronglong.crypto.model.RecurrentNets;
+import com.sronglong.crypto.representation.CryptoBTCDataSetIterator;
+import com.sronglong.crypto.representation.CryptoDataSetIterator;
+import com.sronglong.crypto.representation.PriceCategory;
+import com.sronglong.crypto.utils.EvaluationMatrix;
+import com.sronglong.crypto.utils.PlotUtil;
 import javafx.util.Pair;
-import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.eval.RegressionEvaluation;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.deeplearning4j.ui.api.UIServer;
-import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
-import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 //import org.deeplearning4j.parallelism.ParallelWrapper;
-import org.deeplearning4j.eval.Evaluation;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 

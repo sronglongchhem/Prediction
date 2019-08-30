@@ -1,4 +1,4 @@
-package com.isaac.stock.utils;
+package com.sronglong.crypto.utils;
 
 public class Constants {
 
