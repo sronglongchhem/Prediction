@@ -269,6 +269,9 @@ public class StockDataSetIteratorNew implements DataSetIterator {
         stvArray[index] = new StandardDeviation().evaluate(input);
         median[index] =  new Median().evaluate(input);
 
+        System.out.println("sdv" + stvArray.toString());
+        System.out.println("mean" + meanArray.toString());
+
     }
 
     /**

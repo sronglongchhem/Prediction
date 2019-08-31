@@ -34,6 +34,19 @@ public class EvaluationMatrix {
 
     }
 
+
+    public static double mape(double[] actual, double[] predict){
+        int n = actual.length;
+        double sum = 0.0;
+        for (int i = 0; i < n; i++) {
+            sum = sum + Math.abs((actual[i] - predict[i])/actual[i]);
+        }
+
+        double mape = (sum / n) * 100;
+        return mape;
+    }
+
+
     public static double deTanh(double data, double sdt, double mean) {
       //  res[i] = atanh.value( data[i] / 0.5  - 1) / 0.01 * value_deviation + value_mean;
         return Math.atan( data / 0.5  - 1) / 0.01 * sdt + mean;

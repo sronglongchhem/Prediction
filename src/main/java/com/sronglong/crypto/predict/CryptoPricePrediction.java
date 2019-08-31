@@ -51,7 +51,7 @@ public class CryptoPricePrediction {
 
         int batchSize = 64; // mini-batch size
         double splitRatio = 0.8; // 90% for training, 10% for testing
-        int epochs = 1; // training epochs
+        int epochs = 300; // training epochs
         NormalizeType normalizeType = NormalizeType.TANH_EST;
         int type = 0;
 
@@ -167,9 +167,13 @@ public class CryptoPricePrediction {
 
 //        double[] actual, pred
         double mse = EvaluationMatrix.mseCal(actuals, predicts);
-        log.info("mse : " + mse  +"| rmse " + EvaluationMatrix.rmseCal(mse) +"| mea"+EvaluationMatrix.maeCal(actuals, predicts) );
-        log.info("rmse : " + EvaluationMatrix.rmseCal(mse));
-        log.info("mae : " + EvaluationMatrix.maeCal(actuals, predicts));
+        log.info(CSV_NAME + normalizeType.toString() + "result");
+        log.info("mse : " + mse  +"| rmse " + EvaluationMatrix.rmseCal(mse) +"| " +
+                "mea"+EvaluationMatrix.maeCal(actuals, predicts) +
+                "| map2"+EvaluationMatrix.mape(actuals, predicts)  );
+
+//        log.info("rmse : " + EvaluationMatrix.rmseCal(mse));
+//        log.info("mae : " + EvaluationMatrix.maeCal(actuals, predicts));
 
     }
 
