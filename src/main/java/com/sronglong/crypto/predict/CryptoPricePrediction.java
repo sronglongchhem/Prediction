@@ -46,12 +46,12 @@ public class CryptoPricePrediction {
 
     public static void main(String[] args) throws IOException {
         String fileTrain = new ClassPathResource("BTC_daily__training.csv").getFile().getAbsolutePath();
-        String fileTrain = new ClassPathResource("ETH_daily__training.csv").getFile().getAbsolutePath();
+     //   String fileTrain = new ClassPathResource("ETH_daily__training.csv").getFile().getAbsolutePath();
 //        String fileTest = new ClassPathResource("BTC_daily_testdata.csv").getFile().getAbsolutePath();
 
         int batchSize = 64; // mini-batch size
         double splitRatio = 0.8; // 90% for training, 10% for testing
-        int epochs = 100; // training epochs
+        int epochs = 1; // training epochs
         NormalizeType normalizeType = NormalizeType.TANH_EST;
         int type = 0;
 

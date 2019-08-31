@@ -5,6 +5,8 @@ import com.sronglong.crypto.utils.EvaluationMatrix;
 import com.opencsv.CSVReader;
 import javafx.util.Pair;
 import org.apache.commons.math.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.analysis.function.Atanh;
+import org.apache.commons.math3.analysis.function.Tanh;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -54,6 +56,9 @@ public class StockDataSetIteratorNew implements DataSetIterator {
 
     /** adjusted stock dataset for testing */
     private List<Pair<INDArray, INDArray>> test;
+
+    private Tanh tanh = new Tanh();
+    private Atanh atanh = new Atanh();
 
     private double splitRatio;
 
@@ -384,7 +389,9 @@ public class StockDataSetIteratorNew implements DataSetIterator {
     }
 
     private double tanhestimators(double value, int index){
-        double V1 = 0.5 * (  Math.tanh(0.01 * (value - meanArray[index]) /  stvArray[index] ) + 1 );
+//        0.5 * ( tanh.value(0.01 * (stock.getOpen() - minArray[0]) /  maxArray[0] ) + 1 ));
+        Tanh tanh = new Tanh();
+        double V1 = 0.5 * (  tanh.value(0.01 * (value - meanArray[index]) /  stvArray[index] ) + 1 );
 
 //        System.out.println(value);
 //
@@ -396,7 +403,9 @@ public class StockDataSetIteratorNew implements DataSetIterator {
 
     public double detanhestimators(double value,int index){
         //   System.out.println("df");
-        return EvaluationMatrix.deTanh(value,stvArray[index],meanArray[index]);
+        Atanh atanh = new Atanh();
+//        atanh.value( value / 0.5  - 1) / 0.01 * stvArray[index] + meanArray[index];
+        return atanh.value( value / 0.5  - 1) / 0.01 * stvArray[index] + meanArray[index];
     }
 
 

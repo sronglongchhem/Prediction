@@ -35,6 +35,7 @@ public class EvaluationMatrix {
     }
 
     public static double deTanh(double data, double sdt, double mean) {
+      //  res[i] = atanh.value( data[i] / 0.5  - 1) / 0.01 * value_deviation + value_mean;
         return Math.atan( data / 0.5  - 1) / 0.01 * sdt + mean;
 
     }
