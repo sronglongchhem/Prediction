@@ -76,3 +76,16 @@ target/classes/predict_result_Z_SCORE.csv
 target/classes/result
 target/classes/result_eth
 target/classes/StockPriceLSTM_CLOSE.zip
+target/classes/com/isaac/stock/model/RecurrentNets.class
+target/classes/com/isaac/stock/model/RecurrentNets.class
+target/classes/com/isaac/stock/model/RecurrentNetsNew.class
+target/classes/com/isaac/stock/predict/CryptoPricePrediction$1.class
+target/classes/com/sronglong/crypto/predict/CreateNormalizedData.class
+target/classes/com/sronglong/crypto/representation/NormalizeData$1.class
+target/classes/com/sronglong/crypto/representation/NormalizeData.class
+target/classes/ETH_daily__training.csv
+target/classes/predict_result_minax.csv
+target/classes/predict_result_MINMAX.csv
+target/classes/ETH_daily__training.csv
+target/classes/StockPriceLSTM_CLOSE.zip
+*.class

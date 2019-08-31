@@ -55,9 +55,13 @@ public class StockDataSetIteratorNew implements DataSetIterator {
     /** adjusted stock dataset for testing */
     private List<Pair<INDArray, INDArray>> test;
 
+    private double splitRatio;
+
     public StockDataSetIteratorNew(String filename, int miniBatchSize, int exampleLength, double splitRatio, PriceCategory category, NormalizeType normalizeType) {
+        this.splitRatio = splitRatio;
         List<StockData> stockDataList = readStockDataFromFile(filename);
         this.calMeanSTD(stockDataList);
+
         this.miniBatchSize = miniBatchSize;
         this.exampleLength = exampleLength;
         this.category = category;
@@ -238,10 +242,11 @@ public class StockDataSetIteratorNew implements DataSetIterator {
                     }
                     stockDataList.add(new StockData(arr[0], arr[1], nums[0], nums[1], nums[2], nums[3], 0,0));
 
-//                    t++;
-//                    if (t > 1000){
-//                        break;
-//                    }
+                    t++;
+                    if (t > 1440 && splitRatio == 0){
+                        System.out.println("stop data");
+                        break;
+                    }
                 }
 
             }
@@ -379,7 +384,7 @@ public class StockDataSetIteratorNew implements DataSetIterator {
     }
 
     private double tanhestimators(double value, int index){
-        double V1 = 0.5 * (  Math.tanh(0.01 * (value - minArray[index]) /  maxArray[index] ) + 1 );
+        double V1 = 0.5 * (  Math.tanh(0.01 * (value - meanArray[index]) /  stvArray[index] ) + 1 );
         return V1;
 
     }

@@ -42,8 +42,8 @@ public class EarlyStopping {
     private static int exampleLength = 30; // time series length, assume 22 working days per month
     private static CryptoDataSetIterator iterator;
     public static void main (String[] args) throws IOException {
-        String fileTrain = new ClassPathResource("BTC_daily__training.csv").getFile().getAbsolutePath();
-        String fileTest = new ClassPathResource("BTC_daily_testdata.csv").getFile().getAbsolutePath();
+        String fileTrain = new ClassPathResource("minunte_btc_training.csv").getFile().getAbsolutePath();
+        String fileTest = new ClassPathResource("minute_btc_test.csv").getFile().getAbsolutePath();
 
         int batchSize = 64; // mini-batch size
         double splitRatio = 1; // 90% for training, 10% for testing
@@ -83,7 +83,7 @@ public class EarlyStopping {
         EarlyStoppingConfiguration esConf = new EarlyStoppingConfiguration.Builder()
                 .epochTerminationConditions(new MaxEpochsTerminationCondition(100), new ScoreImprovementEpochTerminationCondition(8)) //Max of 50 epochs
                 .evaluateEveryNEpochs(1)
-                .iterationTerminationConditions(new MaxTimeIterationTerminationCondition(20, TimeUnit.MINUTES)) //Max of 20 minutes
+                .iterationTerminationConditions(new MaxTimeIterationTerminationCondition(60, TimeUnit.MINUTES)) //Max of 20 minutes
                 .scoreCalculator(new DataSetLossCalculator(myTestData, true))     //Calculate test set score
                 .modelSaver(saver)
                 .build();
