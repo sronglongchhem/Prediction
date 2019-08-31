@@ -142,10 +142,10 @@ public class StockDataSetIteratorNew implements DataSetIterator {
         double value;
         switch (category) {
             case OPEN: value = calculateValue(data.getOpen(),0); break;
-            case CLOSE: value = calculateValue(data.getClose(),0); break;
-            case LOW: value = calculateValue(data.getLow(),0); break;
-            case HIGH: value = calculateValue(data.getHigh(),0); break;
-            case VOLUME: value = calculateValue(data.getVolume(),0); break;
+            case CLOSE: value = calculateValue(data.getClose(),1); break;
+            case LOW: value = calculateValue(data.getLow(),2); break;
+            case HIGH: value = calculateValue(data.getHigh(),3); break;
+            case VOLUME: value = calculateValue(data.getVolume(),4); break;
             default: throw new NoSuchElementException();
         }
         return value;
@@ -385,6 +385,11 @@ public class StockDataSetIteratorNew implements DataSetIterator {
 
     private double tanhestimators(double value, int index){
         double V1 = 0.5 * (  Math.tanh(0.01 * (value - meanArray[index]) /  stvArray[index] ) + 1 );
+
+//        System.out.println(value);
+//
+//        System.out.println(detanhestimators(V1,index));
+
         return V1;
 
     }

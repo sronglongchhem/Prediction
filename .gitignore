@@ -89,3 +89,5 @@ target/classes/predict_result_MINMAX.csv
 target/classes/ETH_daily__training.csv
 target/classes/StockPriceLSTM_CLOSE.zip
 *.class
+target/classes/minunte_btc_training.csv
+target/classes/Screenshot_2019-08-31_04-38-06.png

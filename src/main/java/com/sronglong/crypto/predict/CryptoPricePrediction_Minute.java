@@ -53,7 +53,7 @@ public class CryptoPricePrediction_Minute {
         int batchSize = 64; // mini-batch size
         double splitRatio = 0.8; // 90% for training, 10% for testing
         int epochs = 100; // training epochs
-        NormalizeType normalizeType = NormalizeType.Z_SCORE;
+        NormalizeType normalizeType = NormalizeType.TANH_EST;
         int type = 0;
 
         log.info("Create dataSet iterator...");

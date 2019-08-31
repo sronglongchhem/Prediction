@@ -46,6 +46,7 @@ public class CryptoPricePrediction {
 
     public static void main(String[] args) throws IOException {
         String fileTrain = new ClassPathResource("BTC_daily__training.csv").getFile().getAbsolutePath();
+        String fileTrain = new ClassPathResource("ETH_daily__training.csv").getFile().getAbsolutePath();
 //        String fileTest = new ClassPathResource("BTC_daily_testdata.csv").getFile().getAbsolutePath();
 
         int batchSize = 64; // mini-batch size
@@ -150,7 +151,7 @@ public class CryptoPricePrediction {
         log.info("Plot...");
         PlotUtil.plot(predicts, actuals, String.valueOf(category));
 
-        log.info(writeFile(actuals,predicts,predictsnormalized,actualsnormalizerd,CSV_NAME + normalizeType.toString()));
+        log.info(writeFile(predicts,actuals,predictsnormalized,actualsnormalizerd,CSV_NAME + normalizeType.toString()));
 
 
 
@@ -166,9 +167,9 @@ public class CryptoPricePrediction {
 
 //        double[] actual, pred
         double mse = EvaluationMatrix.mseCal(actuals, predicts);
-        log.info("mse : " + mse);
+        log.info("mse : " + mse  +"| rmse " + EvaluationMatrix.rmseCal(mse) +"| mea"+EvaluationMatrix.maeCal(actuals, predicts) );
         log.info("rmse : " + EvaluationMatrix.rmseCal(mse));
-        log.info("mae : " + EvaluationMatrix.maeCal(actualsnormalizerd, predictsnormalized));
+        log.info("mae : " + EvaluationMatrix.maeCal(actuals, predicts));
 
     }
 

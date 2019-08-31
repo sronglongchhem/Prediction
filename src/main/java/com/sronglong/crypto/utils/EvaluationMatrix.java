@@ -8,7 +8,7 @@ public class EvaluationMatrix {
         double sum = 0.0;
         for (int i = 0; i < n; i++)
         {    double diff = actual[i] - predict[i];
-            sum = sum + diff * diff;
+            sum = sum + (diff * diff);
         }
         double mse = sum / n;
 
