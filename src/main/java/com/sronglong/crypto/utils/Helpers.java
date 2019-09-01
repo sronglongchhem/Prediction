@@ -37,6 +37,15 @@ public class Helpers {
         return Paths.get(tmp.getAbsolutePath());
     }
 
+    public static String fileLogPath(String name) throws IOException {
+        File tmp = new File("src/main/resources/", "predict_result_".concat(String.valueOf(name)).concat(".txt"));
+        tmp.createNewFile();
+//        File locationToSave = new File("src/main/resources/predict_result_".concat(String.valueOf(name)).concat(".csv"));
+//        URI uri = ClassLoader.getSystemResource(Constants.CSV_ONE).toURI();
+//        locationToSave.mkdirs();
+        return tmp.getAbsolutePath();
+    }
+
     /**
      * Read Files
      */

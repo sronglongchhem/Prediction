@@ -24,8 +24,7 @@ import org.nd4j.linalg.io.ClassPathResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -46,27 +45,38 @@ public class CryptoPricePrediction {
 
     public static void main(String[] args) throws IOException {
         String fileTrain = new ClassPathResource("BTC_daily__training.csv").getFile().getAbsolutePath();
-     //   String fileTrain = new ClassPathResource("ETH_daily__training.csv").getFile().getAbsolutePath();
+        String fileTrainETH = new ClassPathResource("ETH_daily__training.csv").getFile().getAbsolutePath();
 //        String fileTest = new ClassPathResource("BTC_daily_testdata.csv").getFile().getAbsolutePath();
 
         int batchSize = 64; // mini-batch size
         double splitRatio = 0.8; // 90% for training, 10% for testing
-        int epochs = 300; // training epochs
+        int epochs = 200; // training epochs
         NormalizeType normalizeType = NormalizeType.TANH_EST;
         int type = 0;
 
+
+        CSV_NAME = "BTC_daily";
+        pridictWithType(fileTrain,batchSize,splitRatio,NormalizeType.MINMAX,epochs);
+        pridictWithType(fileTrain,batchSize,splitRatio,NormalizeType.Z_SCORE,epochs);
+        pridictWithType(fileTrain,batchSize,splitRatio,NormalizeType.DECIMAL_SCALING,epochs);
+        pridictWithType(fileTrain,batchSize,splitRatio,NormalizeType.TANH_EST,epochs);
+        pridictWithType(fileTrain,batchSize,splitRatio,NormalizeType.MEDIAN_NOR,epochs);
+
+        CSV_NAME = "ETH_daily";
+        pridictWithType(fileTrainETH,batchSize,splitRatio,NormalizeType.MINMAX,epochs);
+        pridictWithType(fileTrainETH,batchSize,splitRatio,NormalizeType.Z_SCORE,epochs);
+        pridictWithType(fileTrainETH,batchSize,splitRatio,NormalizeType.DECIMAL_SCALING,epochs);
+        pridictWithType(fileTrainETH,batchSize,splitRatio,NormalizeType.TANH_EST,epochs);
+        pridictWithType(fileTrainETH,batchSize,splitRatio,NormalizeType.MEDIAN_NOR,epochs);
+
+    }
+
+    private static void pridictWithType(String fileTrain,int batchSize,double splitRatio, NormalizeType normalizeType, int epochs) throws IOException{
         log.info("Create dataSet iterator...");
         PriceCategory category = PriceCategory.CLOSE; // CLOSE: predict close price
 //         iterator = new CryptoDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
 
-         iterator = new StockDataSetIteratorNew(fileTrain, batchSize, exampleLength, splitRatio, category,normalizeType);
-
-//         StockDataSetIteratorNew  training = iterator;
-//        training.spliteTrainandValidate(0.8,true);
-//
-//        StockDataSetIteratorNew  validate = iterator;
-//        training.spliteTrainandValidate(0.8,false);
-
+        iterator = new StockDataSetIteratorNew(fileTrain, batchSize, exampleLength, splitRatio, category,normalizeType);
 
         log.info("Load test dataset...");
         List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
@@ -79,16 +89,16 @@ public class CryptoPricePrediction {
         net.setListeners(new ScoreIterationListener(100));
 
         //Initialize the user interface backend
-        UIServer uiServer = UIServer.getInstance();
-
-        //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
-        StatsStorage statsStorage = new InMemoryStatsStorage();         //Alternative: new FileStatsStorage(File), for saving and loading later
-
-        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
-        uiServer.attach(statsStorage);
-
-        //Then add the StatsListener to collect this information from the network, as it trains
-        net.setListeners(new StatsListener(statsStorage));
+//        UIServer uiServer = UIServer.getInstance();
+//
+//        //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
+//        StatsStorage statsStorage = new InMemoryStatsStorage();         //Alternative: new FileStatsStorage(File), for saving and loading later
+//
+//        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
+//        uiServer.attach(statsStorage);
+//
+//        //Then add the StatsListener to collect this information from the network, as it trains
+//        net.setListeners(new StatsListener(statsStorage));
 
 
         long timeX = System.currentTimeMillis();
@@ -106,6 +116,12 @@ public class CryptoPricePrediction {
 
         log.info("*** Training complete, time: {} ***", (timeY - timeX));
 
+        deleteLog(CSV_NAME + normalizeType.toString());
+        writeLog(CSV_NAME + normalizeType.toString(),"*** Training With epochs :{} *** " + epochs);
+        writeLog(CSV_NAME + normalizeType.toString(),"*** Training complete, time: {} *** " + (timeY - timeX) );
+        writeLog(CSV_NAME + normalizeType.toString(),"*** Training start, time: {} *** " + (timeX) );
+        writeLog(CSV_NAME + normalizeType.toString(),"*** Training finish, time: {} *** " + (timeY) );
+
         log.info("Saving model...");
         File locationToSave = new File("src/main/resources/StockPriceLSTM_".concat(String.valueOf(category)).concat(".zip"));
         // saveUpdater: i.e., the state for Momentum, RMSProp, Adagrad etc. Save this to train your network more in the future
@@ -122,14 +138,16 @@ public class CryptoPricePrediction {
 
         RegressionEvaluation eval = net.evaluateRegression(iterator);
         System.out.println(eval.stats());
-
+        writeLog(CSV_NAME + normalizeType.toString(),eval.stats());
     }
+
+
 
 
     /**
      * Predict one feature of a stock one-day ahead
      */
-    private static void predictPriceOneAhead(MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, PriceCategory category, NormalizeType normalizeType) {
+    private static void predictPriceOneAhead(MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, PriceCategory category, NormalizeType normalizeType) throws IOException{
         double[] predicts = new double[testData.size()];
         double[] actuals = new double[testData.size()];
         double[] predictsnormalized = new double[testData.size()];
@@ -149,7 +167,7 @@ public class CryptoPricePrediction {
         log.info("Predict,Actual");
         for (int i = 0; i < predicts.length; i++) log.info(predictsnormalized[i] + "," + actualsnormalizerd[i]);
         log.info("Plot...");
-        PlotUtil.plot(predicts, actuals, String.valueOf(category));
+     //   PlotUtil.plot(predicts, actuals, String.valueOf(category));
 
         log.info(writeFile(predicts,actuals,predictsnormalized,actualsnormalizerd,CSV_NAME + normalizeType.toString()));
 
@@ -172,6 +190,13 @@ public class CryptoPricePrediction {
                 "mea"+EvaluationMatrix.maeCal(actuals, predicts) +
                 "| map2"+EvaluationMatrix.mape(actuals, predicts)  );
 
+
+
+       String message =  "mse : " + mse  +"| rmse " + EvaluationMatrix.rmseCal(mse) +"| " +
+               "mea "+EvaluationMatrix.maeCal(actuals, predicts) +
+               "| mape "+EvaluationMatrix.mape(actuals, predicts);
+        writeLog(CSV_NAME + normalizeType.toString(),message);
+
 //        log.info("rmse : " + EvaluationMatrix.rmseCal(mse));
 //        log.info("mae : " + EvaluationMatrix.maeCal(actuals, predicts));
 
@@ -186,6 +211,43 @@ public class CryptoPricePrediction {
         }
 
         return CsvWriterExamples.csvWriterAll(CsvWriterExamples.toStringList(actuals,predicts,actualsnor, predictsnor,name),path);
+    }
+
+
+    public static void deleteLog(String fileName) throws  IOException{
+        File file = new File(Helpers.fileLogPath(fileName));
+        if(file.delete()){
+            System.out.println(Helpers.fileLogPath(fileName));
+        }else System.out.println("File "+Helpers.fileLogPath(fileName)+"file.txt doesn't exist");
+
+    }
+
+    public static void writeLog(String fileName, String text) throws  IOException{
+
+        File file = new File(Helpers.fileLogPath(fileName));
+        FileWriter fr = null;
+        BufferedWriter br = null;
+        PrintWriter pr = null;
+        try {
+            // to append to file, you need to initialize FileWriter using below constructor
+            fr = new FileWriter(file, true);
+            br = new BufferedWriter(fr);
+            pr = new PrintWriter(br);
+            pr.println(text);
+            pr.println("\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                pr.close();
+                br.close();
+                fr.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
     }
 
     public static double denormalize(double value, NormalizeType normalizeType){
@@ -204,3 +266,74 @@ public class CryptoPricePrediction {
 
 
 }
+
+
+
+
+//        log.info("Create dataSet iterator...");
+//                PriceCategory category = PriceCategory.CLOSE; // CLOSE: predict close price
+////         iterator = new CryptoDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
+//
+//                iterator = new StockDataSetIteratorNew(fileTrain, batchSize, exampleLength, splitRatio, category,normalizeType);
+//
+////         StockDataSetIteratorNew  training = iterator;
+////        training.spliteTrainandValidate(0.8,true);
+////
+////        StockDataSetIteratorNew  validate = iterator;
+////        training.spliteTrainandValidate(0.8,false);
+//
+//
+//                log.info("Load test dataset...");
+//                List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
+//
+//        log.info("Build lstm networks...");
+////        MultiLayerNetwork net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
+//        MultiLayerNetwork net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
+//
+//        log.info("Training...");
+//        net.setListeners(new ScoreIterationListener(100));
+//
+//        //Initialize the user interface backend
+//        UIServer uiServer = UIServer.getInstance();
+//
+//        //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
+//        StatsStorage statsStorage = new InMemoryStatsStorage();         //Alternative: new FileStatsStorage(File), for saving and loading later
+//
+//        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
+//        uiServer.attach(statsStorage);
+//
+//        //Then add the StatsListener to collect this information from the network, as it trains
+//        net.setListeners(new StatsListener(statsStorage));
+//
+//
+//        long timeX = System.currentTimeMillis();
+//        for (int i = 0; i < epochs; i++) {
+//        long time1 = System.currentTimeMillis();
+//
+//        while (iterator.hasNext()) net.fit(iterator.next()); // fit model using mini-batch data
+//        iterator.reset(); // reset iterator
+//        net.rnnClearPreviousState(); // clear previous state
+//        long time2 = System.currentTimeMillis();
+//        log.info("*** Completed epoch {}, time: {} ***", i, (time2 - time1));
+//        }
+//
+//        long timeY = System.currentTimeMillis();
+//
+//        log.info("*** Training complete, time: {} ***", (timeY - timeX));
+//
+//        log.info("Saving model...");
+//        File locationToSave = new File("src/main/resources/StockPriceLSTM_".concat(String.valueOf(category)).concat(".zip"));
+//        // saveUpdater: i.e., the state for Momentum, RMSProp, Adagrad etc. Save this to train your network more in the future
+//        ModelSerializer.writeModel(net, locationToSave, true);
+//
+//        log.info("Load model...");
+//        net = ModelSerializer.restoreMultiLayerNetwork(locationToSave);
+//
+//        log.info("Testing...");
+//
+//        predictPriceOneAhead(net, test, category,normalizeType);
+//
+//        log.info("Done...");
+//
+//        RegressionEvaluation eval = net.evaluateRegression(iterator);
+//        System.out.println(eval.stats());
