@@ -1,0 +1,12 @@
+*** Training With epochs :{} *** 48
+
+
+*** Training complete, time: {} *** 11335938
+
+
+*** Training start, time: {} *** 1567344101860
+
+
+*** Training finish, time: {} *** 1567355437798
+
+
