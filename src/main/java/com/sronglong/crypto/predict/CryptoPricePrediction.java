@@ -3,6 +3,7 @@ package com.sronglong.crypto.predict;
 //
 import com.sronglong.crypto.model.RecurrentNets;
 //import com.isaac.stock.representation.*;
+import com.sronglong.crypto.representation.CryptoDataSetIteratorWithValidation;
 import com.sronglong.crypto.utils.CsvWriterExamples;
 import com.sronglong.crypto.utils.EvaluationMatrix;
 import com.sronglong.crypto.utils.Helpers;
@@ -50,13 +51,14 @@ public class CryptoPricePrediction {
 
         int batchSize = 64; // mini-batch size
         double splitRatio = 0.8; // 90% for training, 10% for testing
-        int epochs = 200; // training epochs
-        NormalizeType normalizeType = NormalizeType.TANH_EST;
+        int epochs = 48; // training epochs
+        NormalizeType normalizeType = NormalizeType.MINMAX;
         int type = 0;
 
 
-        CSV_NAME = "BTC_daily";
-        pridictWithType(fileTrain,batchSize,splitRatio,NormalizeType.MINMAX,epochs);
+        CSV_NAME = "BTC_minute_validate";
+        pridictWithTypeMinute(fileTest,batchSize,splitRatio,NormalizeType.MINMAX,epochs);
+//        pridictWithType(fileTrain,batchSize,splitRatio,NormalizeType.MINMAX,epochs);
 //        pridictWithType(fileTrain,batchSize,splitRatio,NormalizeType.Z_SCORE,epochs);
 //        pridictWithType(fileTrain,batchSize,splitRatio,NormalizeType.DECIMAL_SCALING,epochs);
 //        pridictWithType(fileTrain,batchSize,splitRatio,NormalizeType.TANH_EST,epochs);
@@ -83,6 +85,75 @@ public class CryptoPricePrediction {
 
         log.info("Build lstm networks...");
 //        MultiLayerNetwork net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
+        MultiLayerNetwork net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
+
+        log.info("Training...");
+        net.setListeners(new ScoreIterationListener(100));
+
+        //Initialize the user interface backend
+//        UIServer uiServer = UIServer.getInstance();
+//
+//        //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
+//        StatsStorage statsStorage = new InMemoryStatsStorage();         //Alternative: new FileStatsStorage(File), for saving and loading later
+//
+//        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
+//        uiServer.attach(statsStorage);
+//
+//        //Then add the StatsListener to collect this information from the network, as it trains
+//        net.setListeners(new StatsListener(statsStorage));
+
+
+        long timeX = System.currentTimeMillis();
+        for (int i = 0; i < epochs; i++) {
+            long time1 = System.currentTimeMillis();
+
+            while (iterator.hasNext()) net.fit(iterator.next()); // fit model using mini-batch data
+            iterator.reset(); // reset iterator
+            net.rnnClearPreviousState(); // clear previous state
+            long time2 = System.currentTimeMillis();
+            log.info("*** Completed epoch {}, time: {} ***", i, (time2 - time1));
+        }
+
+        long timeY = System.currentTimeMillis();
+
+        log.info("*** Training complete, time: {} ***", (timeY - timeX));
+
+        deleteLog(CSV_NAME + normalizeType.toString());
+        writeLog(CSV_NAME + normalizeType.toString(),"*** Training With epochs :{} *** " + epochs);
+        writeLog(CSV_NAME + normalizeType.toString(),"*** Training complete, time: {} *** " + (timeY - timeX) );
+        writeLog(CSV_NAME + normalizeType.toString(),"*** Training start, time: {} *** " + (timeX) );
+        writeLog(CSV_NAME + normalizeType.toString(),"*** Training finish, time: {} *** " + (timeY) );
+
+        log.info("Saving model...");
+        File locationToSave = new File("src/main/resources/StockPriceLSTM_".concat(String.valueOf(category)).concat(".zip"));
+        // saveUpdater: i.e., the state for Momentum, RMSProp, Adagrad etc. Save this to train your network more in the future
+        ModelSerializer.writeModel(net, locationToSave, true);
+
+        log.info("Load model...");
+        net = ModelSerializer.restoreMultiLayerNetwork(locationToSave);
+
+        log.info("Testing...");
+
+        predictPriceOneAhead(net, test, category,normalizeType);
+
+        log.info("Done...");
+
+        RegressionEvaluation eval = net.evaluateRegression(iterator);
+        System.out.println(eval.stats());
+        writeLog(CSV_NAME + normalizeType.toString(),eval.stats());
+    }
+
+
+    private static void pridictWithTypeMinute(String fileTrain,int batchSize,double splitRatio, NormalizeType normalizeType, int epochs) throws IOException{
+        log.info("Create dataSet iterator...");
+        PriceCategory category = PriceCategory.CLOSE; //
+
+        CryptoDataSetIteratorWithValidation iterator = new CryptoDataSetIteratorWithValidation(fileTrain, batchSize, exampleLength, splitRatio,category,normalizeType);
+
+        log.info("Load test dataset...");
+        List<Pair<INDArray, INDArray>> test = iterator.getValidateDataset();
+
+        log.info("Build lstm networks...");
         MultiLayerNetwork net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
 
         log.info("Training...");

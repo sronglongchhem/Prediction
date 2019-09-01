@@ -1,0 +1,15 @@
+*** Training With epochs :{} ***1
+
+
+*** Training complete, time: {} ***0
+
+
+*** Training start, time: {} ***1567302036628
+
+
+*** Training finish, time: {} ***1567302036628
+
+
+mse : 24887.279444383134| rmse 157.75702660858923| mea 149.74369560769804| mape 74.968471015208
+
+

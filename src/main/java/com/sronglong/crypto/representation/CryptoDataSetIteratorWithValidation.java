@@ -1,7 +1,6 @@
 package com.sronglong.crypto.representation;
 
 import com.google.common.collect.ImmutableMap;
-import com.sronglong.crypto.utils.EvaluationMatrix;
 import com.opencsv.CSVReader;
 import javafx.util.Pair;
 import org.apache.commons.math.stat.descriptive.moment.Mean;
@@ -20,7 +19,7 @@ import java.io.IOException;
 import java.util.*;
 
 @SuppressWarnings("serial")
-public class StockDataSetIteratorNew implements DataSetIterator {
+public class CryptoDataSetIteratorWithValidation implements DataSetIterator {
     /** category and its index */
     private final Map<PriceCategory, Integer> featureMapIndex = ImmutableMap.of(PriceCategory.OPEN, 0, PriceCategory.CLOSE, 1,
             PriceCategory.LOW, 2, PriceCategory.HIGH, 3, PriceCategory.VOLUME, 4);
@@ -57,14 +56,15 @@ public class StockDataSetIteratorNew implements DataSetIterator {
     /** adjusted stock dataset for testing */
     private List<Pair<INDArray, INDArray>> test;
 
-
+    /** adjusted stock dataset for validate */
+    private List<Pair<INDArray, INDArray>> validate;
 
     private Tanh tanh = new Tanh();
     private Atanh atanh = new Atanh();
 
     private double splitRatio;
 
-    public StockDataSetIteratorNew(String filename, int miniBatchSize, int exampleLength, double splitRatio, PriceCategory category, NormalizeType normalizeType) {
+    public CryptoDataSetIteratorWithValidation(String filename, int miniBatchSize, int exampleLength, double splitRatio, PriceCategory category, NormalizeType normalizeType) {
         this.splitRatio = splitRatio;
         List<StockData> stockDataList = readStockDataFromFile(filename);
         this.calMeanSTD(stockDataList);
@@ -74,7 +74,13 @@ public class StockDataSetIteratorNew implements DataSetIterator {
         this.category = category;
         int split = (int) Math.round(stockDataList.size() * splitRatio);
         this.normalizeType = normalizeType;
-        train = stockDataList.subList(0, split);
+        train = stockDataList.subList(0, split );
+
+        //validate
+        split = (int) Math.round(train.size() * splitRatio);
+        validate = generateTestDataSet(train.subList(split,train.size()));
+
+        //20percent of whole data test
         test = generateTestDataSet(stockDataList.subList(split, stockDataList.size()));
 //        initializeOffsets();
     }
@@ -102,6 +108,8 @@ public class StockDataSetIteratorNew implements DataSetIterator {
     }
 
     public List<Pair<INDArray, INDArray>> getTestDataSet() { return test; }
+    public List<Pair<INDArray, INDArray>> getValidateDataset() { return test; }
+
 
     public double[] getMaxArray() { return maxArray; }
 
