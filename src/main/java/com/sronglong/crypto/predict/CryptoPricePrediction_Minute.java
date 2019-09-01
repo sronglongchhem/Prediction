@@ -50,7 +50,7 @@ public class CryptoPricePrediction_Minute {
         String fileTrain = new ClassPathResource("minunte_btc_training.csv").getFile().getAbsolutePath();
         String fileTest = new ClassPathResource("minute_btc_test.csv").getFile().getAbsolutePath();
 
-        int batchSize = 64; // mini-batch size
+        int batchSize = 1000; // mini-batch size
         double splitRatio = 0.8; // 90% for training, 10% for testing
         int epochs = 100; // training epochs
         NormalizeType normalizeType = NormalizeType.TANH_EST;
