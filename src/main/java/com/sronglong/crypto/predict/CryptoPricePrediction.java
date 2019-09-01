@@ -51,7 +51,7 @@ public class CryptoPricePrediction {
 
         int batchSize = 500; // mini-batch size
         double splitRatio = 0.8; // 90% for training, 10% for testing
-        int epochs = 50; // training epochs
+        int epochs = 3; // training epochs
         NormalizeType normalizeType = NormalizeType.DECIMAL_SCALING;
         int type = 0;
 
