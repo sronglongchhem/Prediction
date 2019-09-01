@@ -1,0 +1,20 @@
+*** Training With epochs :{} *** 48
+
+
+*** Training complete, time: {} *** 11117434
+
+
+*** Training start, time: {} *** 1567363393478
+
+
+*** Training finish, time: {} *** 1567374510912
+
+
+mse : 1142699.6044523797| rmse 1068.9712832683485| mea 1048.541096791302| mape 10.307399473928458
+
+
+Column    MSE            MAE            RMSE           RSE            PC             R^2            
+col_0     1.29555e-03    2.18885e-02    3.59937e-02    3.22094e+01    9.89646e-02    -3.12070e+01   
+
+
+
