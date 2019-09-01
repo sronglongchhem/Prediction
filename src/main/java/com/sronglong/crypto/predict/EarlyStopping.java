@@ -58,12 +58,12 @@ public class EarlyStopping {
 //        StockDataSetIteratorNew myTrainData = new StockDataSetIteratorNew(fileTrain, batchSize, exampleLength, splitRatio, category,normalizeType);
 //        StockDataSetIteratorNew myTestData = new StockDataSetIteratorNew(fileTest, batchSize, exampleLength, splitRatio, category,normalizeType);
 
-        StockDataSetIteratorNew iterator = new StockDataSetIteratorNew(fileTrain, batchSize, exampleLength, splitRatio, category,normalizeType);
+        StockDataSetIteratorNew iterator = new StockDataSetIteratorNew(fileTest, batchSize, exampleLength, splitRatio, category,normalizeType);
 
         StockDataSetIteratorNew  myTrainData = iterator;
         myTrainData.spliteTrainandValidate(0.8,true);
 
-        StockDataSetIteratorNew iterator1 = new StockDataSetIteratorNew(fileTrain, batchSize, exampleLength, splitRatio, category,normalizeType);
+        StockDataSetIteratorNew iterator1 = new StockDataSetIteratorNew(fileTest, batchSize, exampleLength, splitRatio, category,normalizeType);
         StockDataSetIteratorNew  myTestData = iterator1;
         myTestData.spliteTrainandValidate(0.8,false);
 
