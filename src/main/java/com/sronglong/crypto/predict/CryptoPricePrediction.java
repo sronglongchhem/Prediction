@@ -45,13 +45,13 @@ public class CryptoPricePrediction {
     private static String CSV_NAME = "";
 
     public static void main(String[] args) throws IOException {
-       // String fileTrain = new ClassPathResource("BTC_daily__training.csv").getFile().getAbsolutePath();
+        String fileTrain = new ClassPathResource("BTC_daily__training.csv").getFile().getAbsolutePath();
        // String fileTrainETH = new ClassPathResource("ETH_daily__training.csv").getFile().getAbsolutePath();
         String fileTest = new ClassPathResource("minute_btc_test1.csv").getFile().getAbsolutePath();
 
         int batchSize = 500; // mini-batch size
         double splitRatio = 0.8; // 90% for training, 10% for testing
-        int epochs = 3; // training epochs
+        int epochs = 60; // training epochs
         NormalizeType normalizeType = NormalizeType.DECIMAL_SCALING;
         int type = 0;
 
@@ -236,7 +236,7 @@ public class CryptoPricePrediction {
         }
         log.info("Print out Predictions and Actual Values...");
         log.info("Predict,Actual");
-        for (int i = 0; i < predicts.length; i++) log.info(predictsnormalized[i] + "," + actualsnormalizerd[i]);
+        for (int i = 0; i < predicts.length; i++) log.info(predicts[i] + "," + actuals[i]);
         log.info("Plot...");
      //   PlotUtil.plot(predicts, actuals, String.valueOf(category));
 

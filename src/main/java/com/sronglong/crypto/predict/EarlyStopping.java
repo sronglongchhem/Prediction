@@ -43,12 +43,12 @@ public class EarlyStopping {
     private static CryptoDataSetIterator iterator;
     public static void main (String[] args) throws IOException {
         String fileTrain = new ClassPathResource("minunte_btc_training.csv").getFile().getAbsolutePath();
-        String fileTest = new ClassPathResource("minute_btc_test.csv").getFile().getAbsolutePath();
+        String fileTest = new ClassPathResource("minute_btc_test1.csv").getFile().getAbsolutePath();
 
-        int batchSize = 64; // mini-batch size
+        int batchSize = 500; // mini-batch size
         double splitRatio = 1; // 90% for training, 10% for testing
         int epochs = 1; // training epochs
-        NormalizeType normalizeType = NormalizeType.MINMAX;
+        NormalizeType normalizeType = NormalizeType.DECIMAL_SCALING;
         int type = 0;
 
         log.info("Create dataSet iterator...");
