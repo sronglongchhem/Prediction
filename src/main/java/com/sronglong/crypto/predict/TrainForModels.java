@@ -1,24 +1,19 @@
 package com.sronglong.crypto.predict;
 //mvn compile exec:java -Dexec.mainClass="com.isaac.stock.predict.StockPricePrediction"
 //
+
 import com.sronglong.crypto.model.RecurrentNets;
-//import com.isaac.stock.representation.*;
 import com.sronglong.crypto.representation.CryptoDataSetIteratorWithValidation;
-import com.sronglong.crypto.utils.CsvWriterExamples;
-import com.sronglong.crypto.utils.EvaluationMatrix;
-import com.sronglong.crypto.utils.Helpers;
-import com.sronglong.crypto.utils.PlotUtil;
 import com.sronglong.crypto.representation.NormalizeType;
 import com.sronglong.crypto.representation.PriceCategory;
 import com.sronglong.crypto.representation.StockDataSetIteratorNew;
+import com.sronglong.crypto.utils.CsvWriterExamples;
+import com.sronglong.crypto.utils.EvaluationMatrix;
+import com.sronglong.crypto.utils.Helpers;
 import javafx.util.Pair;
-import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.eval.RegressionEvaluation;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.deeplearning4j.ui.api.UIServer;
-import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.io.ClassPathResource;
@@ -30,77 +25,101 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+
 /**
  * Created by zhanghao on 26/7/17.
- * Modified by zhanghao on 28/9/17.
- * @author ZHANG HAO
+ * Modified by Sronglong Chhem on 05/8/19.
+ * @author Sronglong Chhem
  */
-public class CryptoPricePrediction {
+public class TrainForModels {
 
-    private static final Logger log = LoggerFactory.getLogger(CryptoPricePrediction.class);
+    private static final Logger log = LoggerFactory.getLogger(TrainForModels.class);
 
     private static int exampleLength = 30; // time series length, assume 22 working days per month
 
-    private static StockDataSetIteratorNew iterator;
+    private static CryptoDataSetIteratorWithValidation iterator;
     private static String CSV_NAME = "";
 
     public static void main(String[] args) throws IOException {
-        String fileTrain = new ClassPathResource("BTC_daily__training.csv").getFile().getAbsolutePath();
-        String fileTrainETH = new ClassPathResource("ETH_daily__training.csv").getFile().getAbsolutePath();
-//        String fileTest = new ClassPathResource("minute_btc_test1.csv").getFile().getAbsolutePath();
+       String fileTest = new ClassPathResource("minute_btc_test1.csv").getFile().getAbsolutePath();
 
-        int batchSize = 500; // mini-batch size
-        double splitRatio = 0.8; // 90% for training, 10% for testing
-        int epochs = 60; // training epochs
-        NormalizeType normalizeType = NormalizeType.DECIMAL_SCALING;
+        int batchSize = 64; // mini-batch size
+        double splitRatio = 0; // 90% for training, 10% for testing
+        int epochs = 48; // training epochs
+        NormalizeType normalizeType = NormalizeType.MINMAX;
         int type = 0;
 
 
-        CSV_NAME = "BTC_minute_final";
-    //    pridictWithTypeMinute(fileTest,batchSize,splitRatio,NormalizeType.DECIMAL_SCALING,epochs);
-        pridictWithType(fileTrain,batchSize,splitRatio,NormalizeType.MINMAX,epochs);
-        pridictWithType(fileTrain,batchSize,splitRatio,NormalizeType.Z_SCORE,epochs);
-        pridictWithType(fileTrain,batchSize,splitRatio,NormalizeType.DECIMAL_SCALING,epochs);
-        pridictWithType(fileTrain,batchSize,splitRatio,NormalizeType.TANH_EST,epochs);
-        pridictWithType(fileTrain,batchSize,splitRatio,NormalizeType.MEDIAN_NOR,epochs);
-
-        CSV_NAME = "ETH_daily";
-        pridictWithType(fileTrainETH,batchSize,splitRatio,NormalizeType.MINMAX,epochs);
-        pridictWithType(fileTrainETH,batchSize,splitRatio,NormalizeType.Z_SCORE,epochs);
-        pridictWithType(fileTrainETH,batchSize,splitRatio,NormalizeType.DECIMAL_SCALING,epochs);
-        pridictWithType(fileTrainETH,batchSize,splitRatio,NormalizeType.TANH_EST,epochs);
-        pridictWithType(fileTrainETH,batchSize,splitRatio,NormalizeType.MEDIAN_NOR,epochs);
+        CSV_NAME = "testing_from_model_48_decimal8";
+        pridictWithType(fileTest,batchSize,splitRatio, NormalizeType.DECIMAL_SCALING,epochs);
 
     }
 
-    private static void pridictWithType(String fileTrain,int batchSize,double splitRatio, NormalizeType normalizeType, int epochs) throws IOException{
+    private static void pridictWithType(String fileTrain, int batchSize, double splitRatio, NormalizeType normalizeType, int epochs) throws IOException{
         log.info("Create dataSet iterator...");
         PriceCategory category = PriceCategory.CLOSE; // CLOSE: predict close price
-//         iterator = new CryptoDataSetIterator(file, symbol, batchSize, exampleLength, splitRatio, category);
 
-        iterator = new StockDataSetIteratorNew(fileTrain, batchSize, exampleLength, splitRatio, category,normalizeType);
+
+        log.info("Testing...");
+         iterator = new CryptoDataSetIteratorWithValidation(fileTrain, batchSize, exampleLength, splitRatio,category,normalizeType);
 
         log.info("Load test dataset...");
         List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
 
+
+
+
+        log.info("Saving model...");
+        File locationToSave = new File("src/main/resources/StockPriceLSTM_BTC_minute_final_newCLOSE.zip");
+
+        log.info("Load model...");
+
+        long timeX = System.currentTimeMillis();
+        MultiLayerNetwork net = ModelSerializer.restoreMultiLayerNetwork(locationToSave);
+        long timeY = System.currentTimeMillis();
+
+        log.info("*** Loading time complete, time: {} ***", (timeY - timeX));
+
+
+        predictPriceOneAhead(net, test, category,normalizeType);
+
+
+        log.info("Done...");
+        RegressionEvaluation eval = net.evaluateRegression(iterator);
+        System.out.println(eval.stats());
+     //   writeLog(CSV_NAME + normalizeType.toString(),eval.stats());
+
+
+
+    }
+
+
+    private static void pridictWithTypeMinute(String fileTrain, int batchSize, double splitRatio, NormalizeType normalizeType, int epochs) throws IOException{
+        log.info("Create dataSet iterator...");
+        PriceCategory category = PriceCategory.CLOSE; //
+
+        CryptoDataSetIteratorWithValidation iterator = new CryptoDataSetIteratorWithValidation(fileTrain, batchSize, exampleLength, splitRatio,category,normalizeType);
+
+        log.info("Load test dataset...");
+        List<Pair<INDArray, INDArray>> test = iterator.getValidateDataset();
+
         log.info("Build lstm networks...");
-//        MultiLayerNetwork net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
         MultiLayerNetwork net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
 
         log.info("Training...");
         net.setListeners(new ScoreIterationListener(100));
 
         //Initialize the user interface backend
-        UIServer uiServer = UIServer.getInstance();
-
-        //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
-        StatsStorage statsStorage = new InMemoryStatsStorage();         //Alternative: new FileStatsStorage(File), for saving and loading later
-
-        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
-        uiServer.attach(statsStorage);
-
-        //Then add the StatsListener to collect this information from the network, as it trains
-        net.setListeners(new StatsListener(statsStorage));
+//        UIServer uiServer = UIServer.getInstance();
+//
+//        //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
+//        StatsStorage statsStorage = new InMemoryStatsStorage();         //Alternative: new FileStatsStorage(File), for saving and loading later
+//
+//        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
+//        uiServer.attach(statsStorage);
+//
+//        //Then add the StatsListener to collect this information from the network, as it trains
+//        net.setListeners(new StatsListener(statsStorage));
 
 
         long timeX = System.currentTimeMillis();
@@ -125,7 +144,7 @@ public class CryptoPricePrediction {
         writeLog(CSV_NAME + normalizeType.toString(),"*** Training finish, time: {} *** " + (timeY) );
 
         log.info("Saving model...");
-        File locationToSave = new File("src/main/resources/StockPriceLSTM_"+CSV_NAME.concat(String.valueOf(category)).concat(".zip"));
+        File locationToSave = new File("src/main/resources/StockPriceLSTM_".concat(String.valueOf(category)).concat(".zip"));
         // saveUpdater: i.e., the state for Momentum, RMSProp, Adagrad etc. Save this to train your network more in the future
         ModelSerializer.writeModel(net, locationToSave, true);
 
@@ -140,7 +159,7 @@ public class CryptoPricePrediction {
 
         RegressionEvaluation eval = net.evaluateRegression(iterator);
         System.out.println(eval.stats());
-        writeLog(CSV_NAME + normalizeType.toString(),eval.stats());
+    //    writeLog(CSV_NAME + normalizeType.toString(),eval.stats());
     }
 
 
@@ -189,14 +208,14 @@ public class CryptoPricePrediction {
         double mse = EvaluationMatrix.mseCal(actuals, predicts);
         log.info(CSV_NAME + normalizeType.toString() + "result");
         log.info("mse : " + mse  +"| rmse " + EvaluationMatrix.rmseCal(mse) +"| " +
-                "mea"+EvaluationMatrix.maeCal(actuals, predicts) +
-                "| map2"+EvaluationMatrix.mape(actuals, predicts)  );
+                "mea"+ EvaluationMatrix.maeCal(actuals, predicts) +
+                "| map2"+ EvaluationMatrix.mape(actuals, predicts)  );
 
 
 
        String message =  "mse : " + mse  +"| rmse " + EvaluationMatrix.rmseCal(mse) +"| " +
-               "mea "+EvaluationMatrix.maeCal(actuals, predicts) +
-               "| mape "+EvaluationMatrix.mape(actuals, predicts);
+               "mea "+ EvaluationMatrix.maeCal(actuals, predicts) +
+               "| mape "+ EvaluationMatrix.mape(actuals, predicts);
         writeLog(CSV_NAME + normalizeType.toString(),message);
 
 //        log.info("rmse : " + EvaluationMatrix.rmseCal(mse));
@@ -220,7 +239,7 @@ public class CryptoPricePrediction {
         File file = new File(Helpers.fileLogPath(fileName));
         if(file.delete()){
             System.out.println(Helpers.fileLogPath(fileName));
-        }else System.out.println("File "+Helpers.fileLogPath(fileName)+"file.txt doesn't exist");
+        }else System.out.println("File "+ Helpers.fileLogPath(fileName)+"file.txt doesn't exist");
 
     }
 
