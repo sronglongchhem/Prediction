@@ -43,7 +43,7 @@ public class CryptoPricePredictionMinuteInterval {
     public static void main(String[] args) throws IOException {
         String fileTrain = new ClassPathResource("BTC_daily__training.csv").getFile().getAbsolutePath();
        // String fileTrainETH = new ClassPathResource("ETH_daily__training.csv").getFile().getAbsolutePath();
-        String fileTest = new ClassPathResource("minute_btc_test1.csv").getFile().getAbsolutePath();
+        String fileTest = new ClassPathResource("minute_btc_test.csv").getFile().getAbsolutePath();
 
         int batchSize = 1000; // mini-batch size
         double splitRatio = 0.8; // 90% for training, 10% for testing
